@@ -21,7 +21,7 @@ A QGIS 3 plugin providing a full military symbol library following the **APP-6(D
 
 ## Screenshots
 
-<!-- Add screenshots here -->
+![QGIS APP-6(D) Plugin](screenshots/screenshot01.png)
 
 ## Installation
 
