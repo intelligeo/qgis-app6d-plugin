@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+.tox/
+.nox/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# QGIS compiled translations
+*.qm
+
+# Packaging output
+*.zip
+*.tar.gz
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.orig
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets / local overrides
+.env
+local_settings.py
+
+# Ancillary files
+resources/
