@@ -98,6 +98,10 @@ python package_plugin.py --dry-run         # list files without creating ZIP
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Quick Start
+
+See [QUICKSTART.md](QUICKSTART.md) for a step-by-step guide to installing and using the plugin.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
