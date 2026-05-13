@@ -329,10 +329,10 @@ _MOBILITY_FUNCS: dict[str, callable] = {
     "36": mobility_rail,
     "37": mobility_over_snow,
     "38": mobility_sled,
-    "41": mobility_pack_animals,         # pack animals
+    "41": mobility_pack_animals,  # pack animals
     # 42-48: towed arrays / variations (less common)
-    "42": mobility_towed,                # short towed
-    "43": mobility_towed,                # long towed
+    "42": mobility_towed,  # short towed
+    "43": mobility_towed,  # long towed
 }
 
 
@@ -426,13 +426,13 @@ def _feint_dummy_arc(shape: str) -> str:
 
 
 _HQTF_FUNCS: dict[str, callable] = {
-    "0": lambda s: "",                          # None
-    "1": _feint_dummy_arc,                      # Feint / Dummy
-    "2": _hq_staff,                             # HQ
+    "0": lambda s: "",  # None
+    "1": _feint_dummy_arc,  # Feint / Dummy
+    "2": _hq_staff,  # HQ
     "3": lambda s: _feint_dummy_arc(s) + _hq_staff(s),  # Feint/Dummy + HQ
-    "4": _task_force_bar,                       # Task Force
+    "4": _task_force_bar,  # Task Force
     "5": lambda s: _feint_dummy_arc(s) + _task_force_bar(s),
-    "6": lambda s: _task_force_bar(s) + _hq_staff(s),   # TF + HQ
+    "6": lambda s: _task_force_bar(s) + _hq_staff(s),  # TF + HQ
     "7": lambda s: _feint_dummy_arc(s) + _task_force_bar(s) + _hq_staff(s),
 }
 

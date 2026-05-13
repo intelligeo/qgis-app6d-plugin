@@ -53,7 +53,7 @@ def _write_svg_file(sym) -> str:
     """Write the SVG for the symbol to disk and return the file path."""
     import hashlib as _hl
     svg_dir = _svg_cache_dir()
-    
+
     # Extract attributes safely to support old structures
     if isinstance(sym, str):
         sidc = sym
@@ -83,13 +83,13 @@ def _write_svg_file(sym) -> str:
         speed = getattr(sym, 'speed', "")
         alt = getattr(sym, 'altitude_depth', "")
         dr = getattr(sym, 'direction', None)
-    
+
     # Build a unique filename
     key = f"{sidc}|{desig}|{hf}|{quant}|{staff}|{addinfo}|{evalrat}|{combeff}|{dtg}|{typestr}|{speed}|{alt}|{dr}"
     suffix = _hl.md5(key.encode(), usedforsecurity=False).hexdigest()[:8]
     fname = f"sm_{suffix}.svg"
     path = os.path.join(svg_dir, fname)
-    
+
     svg_content = cached_svg(
         sidc, desig, hf,
         quantity=quant, staff_comments=staff,
@@ -293,4 +293,3 @@ class MilSymbRendererMetadata(QgsRendererAbstractMetadata):
     def createRendererWidget(self, layer, style, renderer):  # noqa: N802
         """No configuration widget for now – return None."""
         return None
-

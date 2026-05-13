@@ -396,4 +396,3 @@ def clear_caches() -> None:
     cached_svg.cache_clear()
     cached_png.cache_clear()
     _milsymbol_checked = False  # re-check availability on next call
-

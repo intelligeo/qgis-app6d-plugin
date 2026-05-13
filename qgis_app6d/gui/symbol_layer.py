@@ -54,8 +54,8 @@ LOG = get_logger("qgis_milsymb.gui.symbol_layer")
 
 _LAYER_PREFIX = "MilSymb - "
 _CRS_WGS84 = "EPSG:4326"
-_SYMBOL_SIZE_MM = 10.0   # rendered size in mm
-_SYMBOL_SIZE_PX = 64     # raster size for SVG cache files
+_SYMBOL_SIZE_MM = 10.0  # rendered size in mm
+_SYMBOL_SIZE_PX = 64  # raster size for SVG cache files
 _ANCHOR = 0.5
 
 # Field indices (must match URI field order)

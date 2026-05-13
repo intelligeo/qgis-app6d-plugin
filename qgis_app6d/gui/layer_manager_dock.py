@@ -61,7 +61,7 @@ class LayerManagerDockWidget(QDockWidget):
         self._action = action
 
         self._project_data: Optional[MilSymbProject] = None
-        self._layer_manager = None   # set externally
+        self._layer_manager = None  # set externally
 
         self._build_ui()
 
@@ -388,6 +388,3 @@ class LayerManagerDockWidget(QDockWidget):
             LOG.info("Exported layer '%s' to %s", sl.name, path)
         except Exception as exc:
             QMessageBox.critical(self, "Export error", str(exc))
-
-
-

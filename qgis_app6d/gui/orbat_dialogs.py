@@ -370,16 +370,16 @@ class UnitEditDialog(QDialog):
         m2 = raw_m2 if len(raw_m2) == 2 else "00"
 
         return (
-            f"10"                           # version
-            f"0"                            # context = Reality
+            f"10"  # version
+            f"0"  # context = Reality
             f"{identity.value}"
             f"{ss.value}"
             f"{status.value}"
             f"{hqtf.value}"
             f"{echelon.value}"
             f"{entity_code}"
-            f"{m1}"                         # modifier 1
-            f"{m2}"                         # modifier 2
+            f"{m1}"  # modifier 1
+            f"{m2}"  # modifier 2
         )
 
     def _on_sym_changed(self, _idx: int = 0) -> None:
@@ -474,4 +474,3 @@ def import_orbat_dialog(parent: QWidget | None = None) -> Orbat | None:
         orbat = Orbat.from_json(fh.read())
     LOG.info("ORBAT imported from %s (%d units)", path, len(orbat.units))
     return orbat
-

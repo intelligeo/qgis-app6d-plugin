@@ -12,8 +12,8 @@ The drawing area for icons is approximately 100 × 70 px centred on (100, 130).
 from __future__ import annotations
 
 _CX, _CY = 100, 130  # icon centre
-_SW = 3.0             # default stroke width
-_SC = "#000000"       # default stroke colour
+_SW = 3.0  # default stroke width
+_SC = "#000000"  # default stroke colour
 
 
 def _g(content: str, label: str = "") -> str:
@@ -727,14 +727,14 @@ _ICON_REGISTRY: dict[tuple[str, str], callable] = {
     ("10", "000000"): icon_unspecified,
     ("10", "110000"): icon_command_post,
     ("10", "120000"): icon_infantry,
-    ("10", "120100"): icon_infantry,           # Light Infantry
+    ("10", "120100"): icon_infantry,  # Light Infantry
     ("10", "120200"): icon_motorized_infantry,
     ("10", "120300"): icon_mechanized_infantry,
     ("10", "120400"): icon_mountain_infantry,
     ("10", "120500"): icon_airborne_infantry,
-    ("10", "120600"): icon_infantry,           # Air Assault
+    ("10", "120600"): icon_infantry,  # Air Assault
     ("10", "130000"): icon_armor,
-    ("10", "130100"): icon_armor,              # Light Armor
+    ("10", "130100"): icon_armor,  # Light Armor
     ("10", "130300"): icon_armored_reconnaissance,
     ("10", "140000"): icon_artillery,
     ("10", "140100"): icon_self_propelled_artillery,
@@ -769,15 +769,15 @@ _ICON_REGISTRY: dict[tuple[str, str], callable] = {
     # Air (01) ---------------------------------------------------------
     ("01", "000000"): icon_air_track,
     ("01", "110000"): icon_fighter,
-    ("01", "110100"): icon_fighter,            # Air Superiority
-    ("01", "110200"): icon_fighter,            # Interceptor
+    ("01", "110100"): icon_fighter,  # Air Superiority
+    ("01", "110200"): icon_fighter,  # Interceptor
     ("01", "120000"): icon_bomber,
     ("01", "130000"): icon_transport_aircraft,
     ("01", "130100"): icon_tanker_aircraft,
     ("01", "140000"): icon_uav,
-    ("01", "140100"): icon_uav,               # Recon UAV
+    ("01", "140100"): icon_uav,  # Recon UAV
     ("01", "150000"): icon_attack_helicopter,
-    ("01", "160000"): icon_helicopter,         # Utility helicopter
+    ("01", "160000"): icon_helicopter,  # Utility helicopter
     # Air Missile (02) -------------------------------------------------
     ("02", "000000"): icon_air_track,
     # Space (05) -------------------------------------------------------

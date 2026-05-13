@@ -43,9 +43,9 @@ class ProjectIO(QObject):
     """
 
     # Emitted after data is loaded from disk
-    project_loaded = pyqtSignal(object)   # MilSymbProject
+    project_loaded = pyqtSignal(object)  # MilSymbProject
     # Emitted after data is written to disk
-    project_saved = pyqtSignal(str)       # file path
+    project_saved = pyqtSignal(str)  # file path
 
     def __init__(self, project_data: MilSymbProject, parent: QObject | None = None):
         super().__init__(parent)
@@ -192,4 +192,3 @@ class ProjectIO(QObject):
             return None
         base, _ext = os.path.splitext(project_path)
         return base + ".milsymb.json"
-

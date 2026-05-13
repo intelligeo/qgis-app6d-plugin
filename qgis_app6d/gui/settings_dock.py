@@ -45,10 +45,10 @@ class SettingsDockWidget(QDockWidget):
 
     """
 
-    project_loaded = pyqtSignal(object)   # MilSymbProject (kept for back-compat)
-    project_saved = pyqtSignal(str)       # file path (kept for back-compat)
-    symbol_size_changed = pyqtSignal(int) # new size in pixels
-    show_text_modifiers_changed = pyqtSignal(bool) # toggle to show extended text on map
+    project_loaded = pyqtSignal(object)  # MilSymbProject (kept for back-compat)
+    project_saved = pyqtSignal(str)  # file path (kept for back-compat)
+    symbol_size_changed = pyqtSignal(int)  # new size in pixels
+    show_text_modifiers_changed = pyqtSignal(bool)  # toggle to show extended text on map
 
     def __init__(self, iface, action=None, parent=None):
         super().__init__("MilSymb Settings", parent)
@@ -202,4 +202,3 @@ class SettingsDockWidget(QDockWidget):
     @property
     def show_text_modifiers(self) -> bool:
         return self._show_text_modifiers_cb.isChecked()
-

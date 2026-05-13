@@ -13,7 +13,8 @@ Compatible with QGIS 3.16+.  Uses the standard QgisInterface API
 """
 
 import os
-import subprocess
+import configparser
+import subprocess  # noqa: B404
 import sys
 
 from qgis.PyQt.QtCore import Qt, QCoreApplication
@@ -26,10 +27,28 @@ from .logger import get_logger
 
 LOG = get_logger()
 
-_PLUGIN_NAME = "QGIS APP-6(D)"
-_PLUGIN_VERSION = "0.1.0"
-_PLUGIN_AUTHOR = "INTELLIGEO.ch"
-_PLUGIN_URL = "https://github.com/intelligeo/qgis-app6d"
+
+def _load_plugin_metadata() -> dict[str, str]:
+    metadata_path = os.path.join(os.path.dirname(__file__), "metadata.txt")
+    parser = configparser.ConfigParser()
+    parser.read(metadata_path, encoding="utf-8")
+
+    if not parser.has_section("general"):
+        return {}
+
+    return {
+        key: value.strip() for key, value in parser.items("general")
+    }
+
+
+_PLUGIN_METADATA = _load_plugin_metadata()
+_PLUGIN_NAME = _PLUGIN_METADATA.get("name", "")
+_PLUGIN_VERSION = _PLUGIN_METADATA.get("version", "")
+_PLUGIN_AUTHOR = _PLUGIN_METADATA.get("author", "")
+_PLUGIN_URL = (
+    _PLUGIN_METADATA.get("repository")
+    or _PLUGIN_METADATA.get("homepage", "")
+)
 
 
 class QgisApp6Plugin:

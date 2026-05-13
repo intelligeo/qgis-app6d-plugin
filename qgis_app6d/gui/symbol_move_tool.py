@@ -152,4 +152,3 @@ class SymbolMoveTool(QgsMapTool):
             canvas.setMapTool(self._previous_tool)
         elif canvas is not None:
             canvas.unsetMapTool(self)
-

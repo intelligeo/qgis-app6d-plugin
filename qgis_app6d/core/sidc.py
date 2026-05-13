@@ -90,7 +90,7 @@ class SymbolSet(Enum):
     METOC_ATMOSPHERIC = "45"
     METOC_OCEANOGRAPHIC = "46"
     METOC_SPACE = "47"
-    SIGNALS_INTELLIGENCE = "50"    # SIGINT - Space
+    SIGNALS_INTELLIGENCE = "50"  # SIGINT - Space
     SIGNALS_INTELLIGENCE_AIR = "51"
     SIGNALS_INTELLIGENCE_LAND = "52"
     SIGNALS_INTELLIGENCE_SURFACE = "53"
@@ -141,21 +141,21 @@ class Echelon(Enum):
 # Affiliation → frame shape mapping
 AFFILIATION_FRAME = {
     StandardIdentity.PENDING: "pending",
-    StandardIdentity.UNKNOWN: "unknown",        # cloverleaf / quatrefoil
-    StandardIdentity.ASSUMED_FRIEND: "friend",   # rectangle
-    StandardIdentity.FRIEND: "friend",           # rectangle
-    StandardIdentity.NEUTRAL: "neutral",         # square / diamond
-    StandardIdentity.SUSPECT_JOKER: "hostile",   # diamond
-    StandardIdentity.HOSTILE_FAKER: "hostile",    # diamond
+    StandardIdentity.UNKNOWN: "unknown",  # cloverleaf / quatrefoil
+    StandardIdentity.ASSUMED_FRIEND: "friend",  # rectangle
+    StandardIdentity.FRIEND: "friend",  # rectangle
+    StandardIdentity.NEUTRAL: "neutral",  # square / diamond
+    StandardIdentity.SUSPECT_JOKER: "hostile",  # diamond
+    StandardIdentity.HOSTILE_FAKER: "hostile",  # diamond
 }
 
 # Affiliation → fill colour
 AFFILIATION_FILL = {
-    StandardIdentity.PENDING: "#ffff80",       # yellow
-    StandardIdentity.UNKNOWN: "#ffff80",       # yellow
-    StandardIdentity.ASSUMED_FRIEND: "#80e0ff", # light-blue
-    StandardIdentity.FRIEND: "#80e0ff",         # light-blue
-    StandardIdentity.NEUTRAL: "#aaffaa",        # green
+    StandardIdentity.PENDING: "#ffff80",  # yellow
+    StandardIdentity.UNKNOWN: "#ffff80",  # yellow
+    StandardIdentity.ASSUMED_FRIEND: "#80e0ff",  # light-blue
+    StandardIdentity.FRIEND: "#80e0ff",  # light-blue
+    StandardIdentity.NEUTRAL: "#aaffaa",  # green
     StandardIdentity.SUSPECT_JOKER: "#ff8080",  # red
     StandardIdentity.HOSTILE_FAKER: "#ff8080",  # red
 }
@@ -185,8 +185,8 @@ class SIDC:
     symbol_set: SymbolSet = SymbolSet.LAND_UNIT
     status: Status = Status.PRESENT
     hq_tf_dummy: HqTfDummy = HqTfDummy.NONE
-    amplifier: str = "00"          # echelon / mobility
-    entity: str = "000000"         # 6-digit entity code
+    amplifier: str = "00"  # echelon / mobility
+    entity: str = "000000"  # 6-digit entity code
     modifier1: str = "00"
     modifier2: str = "00"
 
@@ -354,7 +354,7 @@ MS2525C_PATTERN = re.compile(r"^[A-Za-z0-9\-\*]{10,15}$")
 class SIDCValidation:
     """Result of SIDC format validation."""
     valid: bool
-    format: Optional[str] = None   # "APP-6D" or "2525C" or None
+    format: Optional[str] = None  # "APP-6D" or "2525C" or None
     error: Optional[str] = None
 
 
@@ -384,12 +384,12 @@ _2525C_AFFILIATION_MAP = {
     "H": StandardIdentity.HOSTILE_FAKER,
     "J": StandardIdentity.SUSPECT_JOKER,
     "K": StandardIdentity.HOSTILE_FAKER,
-    "G": StandardIdentity.PENDING,      # Exercise Pending
-    "W": StandardIdentity.UNKNOWN,       # Exercise Unknown
-    "D": StandardIdentity.FRIEND,        # Exercise Friend
-    "M": StandardIdentity.ASSUMED_FRIEND,# Exercise Assumed Friend
-    "L": StandardIdentity.NEUTRAL,       # Exercise Neutral
-    "O": StandardIdentity.UNKNOWN,       # Not specified → Unknown
+    "G": StandardIdentity.PENDING,  # Exercise Pending
+    "W": StandardIdentity.UNKNOWN,  # Exercise Unknown
+    "D": StandardIdentity.FRIEND,  # Exercise Friend
+    "M": StandardIdentity.ASSUMED_FRIEND,  # Exercise Assumed Friend
+    "L": StandardIdentity.NEUTRAL,  # Exercise Neutral
+    "O": StandardIdentity.UNKNOWN,  # Not specified → Unknown
     "-": StandardIdentity.UNKNOWN,
     "*": StandardIdentity.UNKNOWN,
 }
@@ -401,8 +401,8 @@ _2525C_DIMENSION_MAP = {
     "G": SymbolSet.LAND_UNIT,
     "S": SymbolSet.SEA_SURFACE,
     "U": SymbolSet.SEA_SUBSURFACE,
-    "F": SymbolSet.ACTIVITIES,       # SOF → Activities approximation
-    "X": SymbolSet.ACTIVITIES,       # Other
+    "F": SymbolSet.ACTIVITIES,  # SOF → Activities approximation
+    "X": SymbolSet.ACTIVITIES,  # Other
     "-": SymbolSet.LAND_UNIT,
     "*": SymbolSet.LAND_UNIT,
 }
@@ -436,16 +436,16 @@ def convert_2525c_to_app6d(sidc_15: str) -> str:
     entity = entity_raw.ljust(6, "0")[:6]
 
     return (
-        f"10"                       # version = APP-6D
-        f"0"                        # context = Reality
-        f"{si.value}"               # standard identity
-        f"{ss.value}"               # symbol set
-        f"{status}"                 # status
-        f"0"                        # HQ/TF/Dummy = none
-        f"00"                       # amplifier = none
-        f"{entity}"                 # entity
-        f"00"                       # modifier 1
-        f"00"                       # modifier 2
+        f"10"  # version = APP-6D
+        f"0"  # context = Reality
+        f"{si.value}"  # standard identity
+        f"{ss.value}"  # symbol set
+        f"{status}"  # status
+        f"0"  # HQ/TF/Dummy = none
+        f"00"  # amplifier = none
+        f"{entity}"  # entity
+        f"00"  # modifier 1
+        f"00"  # modifier 2
     )
 
 

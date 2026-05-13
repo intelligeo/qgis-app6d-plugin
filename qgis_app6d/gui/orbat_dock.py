@@ -724,4 +724,3 @@ class OrbatDockWidget(QDockWidget):
         if count:
             LOG.info("Restored %d map symbols from imported ORBAT '%s'",
                      count, orbat.name)
-

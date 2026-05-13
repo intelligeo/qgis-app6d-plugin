@@ -520,4 +520,3 @@ class SymbolServer:
             self._httpd = None
             self._thread = None
             LOG.info("Symbol server stopped")
-

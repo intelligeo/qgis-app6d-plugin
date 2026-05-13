@@ -53,10 +53,10 @@ class MilSymbol:
     """
 
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    sidc: str = "10031000000000000000"   # default: friendly land unit
-    designation: str = ""               # short name / designator
-    higher_formation: str = ""          # parent formation label
-    comment: str = ""                   # mapped to multiple fields if necessary, or just general comment
+    sidc: str = "10031000000000000000"  # default: friendly land unit
+    designation: str = ""  # short name / designator
+    higher_formation: str = ""  # parent formation label
+    comment: str = ""  # mapped to multiple fields if necessary, or just general comment
     quantity: str = ""
     staff_comments: str = ""
     additional_information: str = ""
@@ -105,8 +105,8 @@ class OrbatUnit:
 
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     sidc: str = "10031000000000000000"
-    name: str = ""                      # e.g. "1st Battalion, 3rd Infantry"
-    short_name: str = ""                # e.g. "1/3 Inf"
+    name: str = ""  # e.g. "1st Battalion, 3rd Infantry"
+    short_name: str = ""  # e.g. "1/3 Inf"
     parent_id: Optional[str] = None
     # Temporal
     temporal: TemporalExtent = field(default_factory=TemporalExtent)
@@ -299,7 +299,7 @@ class MilSymbProject:
 
     def remove_layer(self, layer_id: str) -> bool:
         before = len(self.layers)
-        self.layers = [l for l in self.layers if l.id != layer_id]
+        self.layers = [layer for layer in self.layers if layer.id != layer_id]
         return len(self.layers) < before
 
     def rename_layer(self, layer_id: str, new_name: str) -> bool:
@@ -331,7 +331,7 @@ class MilSymbProject:
         return json.dumps(
             {
                 "qgis_milsymb_version": "0.2.0",
-                "layers": [l.to_dict() for l in self.layers],
+                "layers": [layer.to_dict() for layer in self.layers],
                 "orbats": [o.to_dict() for o in self.orbats],
             },
             indent=indent,
@@ -378,4 +378,3 @@ class MilSymbProject:
         for od in d.get("orbats", []):
             proj.orbats.append(Orbat.from_dict(od))
         return proj
-

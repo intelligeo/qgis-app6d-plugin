@@ -130,4 +130,3 @@ class TemporalManager(QObject):
         except (ImportError, AttributeError):
             pass
         return None
-

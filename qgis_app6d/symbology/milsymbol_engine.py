@@ -538,4 +538,3 @@ def render_svg(
 def is_available() -> bool:
     """True if the milsymbol engine was initialised successfully."""
     return get_engine().is_ready
-

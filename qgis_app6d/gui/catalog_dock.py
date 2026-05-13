@@ -58,7 +58,7 @@ LOG = get_logger("qgis_milsymb.gui.catalog_dock")
 # -- Identity combo items ------------------------------------------------
 
 _IDENTITY_ITEMS = [
-    ("Friend",  StandardIdentity.FRIEND),
+    ("Friend", StandardIdentity.FRIEND),
     ("Assumed Friend", StandardIdentity.ASSUMED_FRIEND),
     ("Neutral", StandardIdentity.NEUTRAL),
     ("Unknown", StandardIdentity.UNKNOWN),
@@ -70,20 +70,20 @@ _IDENTITY_ITEMS = [
 # -- Echelon combo items -------------------------------------------------
 
 _ECHELON_ITEMS = [
-    ("(none)",       Echelon.NONE),
-    ("Team / Crew",  Echelon.TEAM_CREW),
-    ("Squad",        Echelon.SQUAD),
-    ("Section",      Echelon.SECTION),
-    ("Platoon",      Echelon.PLATOON),
-    ("Company",      Echelon.COMPANY),
-    ("Battalion",    Echelon.BATTALION),
-    ("Regiment",     Echelon.REGIMENT),
-    ("Brigade",      Echelon.BRIGADE),
-    ("Division",     Echelon.DIVISION),
-    ("Corps",        Echelon.CORPS),
-    ("Army",         Echelon.ARMY),
-    ("Army Group",   Echelon.ARMY_GROUP),
-    ("Region",       Echelon.REGION),
+    ("(none)", Echelon.NONE),
+    ("Team / Crew", Echelon.TEAM_CREW),
+    ("Squad", Echelon.SQUAD),
+    ("Section", Echelon.SECTION),
+    ("Platoon", Echelon.PLATOON),
+    ("Company", Echelon.COMPANY),
+    ("Battalion", Echelon.BATTALION),
+    ("Regiment", Echelon.REGIMENT),
+    ("Brigade", Echelon.BRIGADE),
+    ("Division", Echelon.DIVISION),
+    ("Corps", Echelon.CORPS),
+    ("Army", Echelon.ARMY),
+    ("Army Group", Echelon.ARMY_GROUP),
+    ("Region", Echelon.REGION),
 ]
 
 # Preview size
@@ -514,10 +514,10 @@ class CatalogDockWidget(QDockWidget):
             ratio = 1.0
 
         # Scale to fit *size × size* preserving aspect ratio
-        if ratio >= 1.0:           # wider-or-square: fit to width
+        if ratio >= 1.0:  # wider-or-square: fit to width
             w = size
             h = max(1, round(size / ratio))
-        else:                       # taller: fit to height
+        else:  # taller: fit to height
             h = size
             w = max(1, round(size * ratio))
 
@@ -527,4 +527,3 @@ class CatalogDockWidget(QDockWidget):
         renderer.render(painter)
         painter.end()
         return QPixmap.fromImage(image)
-

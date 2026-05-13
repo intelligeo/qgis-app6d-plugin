@@ -163,4 +163,3 @@ class CanvasInteractionFilter(QObject):
                 return True  # swallow event; default canvas menu suppressed
 
         return False
-

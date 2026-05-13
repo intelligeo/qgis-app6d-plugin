@@ -36,7 +36,7 @@ _FR_X, _FR_Y, _FR_W, _FR_H = 15, 75, 170, 110
 
 # Hostile / Suspect-Joker  – diamond
 _HO_CX, _HO_CY = 100, 130
-_HO_HW, _HO_HH = 85, 75   # half-width, half-height
+_HO_HW, _HO_HH = 85, 75  # half-width, half-height
 
 # Neutral – square (upright)
 _NE_X, _NE_Y, _NE_S = 40, 70, 120
@@ -159,10 +159,10 @@ def friend_air_frame(fill: str, stroke: str, dashed: bool = False) -> str:
     rx = w / 2
     ry = 30
     d = (
-        f"M {x},{y + h} "              # bottom-left
-        f"L {x},{y + ry} "             # left side to arc start
+        f"M {x},{y + h} "  # bottom-left
+        f"L {x},{y + ry} "  # left side to arc start
         f"A {rx},{ry} 0 0 1 {x + w},{y + ry} "  # top arc
-        f"L {x + w},{y + h} "          # right side
+        f"L {x + w},{y + h} "  # right side
         f"Z"
     )
     return f'<path d="{d}" fill="{fill}" {sa}/>'
