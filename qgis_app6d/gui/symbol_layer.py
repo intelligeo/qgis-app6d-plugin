@@ -200,12 +200,12 @@ def _make_vl(name: str) -> QgsVectorLayer:
     """Create a named in-memory Point layer with the plugin attribute schema."""
     uri = (
         f"Point?crs={_CRS_WGS84}"
-        f"&field=sym_id:string(36)"
-        f"&field=svg_path:string(512)"
-        f"&field=designation:string(255)"
-        f"&field=comment:string(512)"
-        f"&field=start_date:datetime"
-        f"&field=end_date:datetime"
+        "&field=sym_id:string(36)"
+        "&field=svg_path:string(512)"
+        "&field=designation:string(255)"
+        "&field=comment:string(512)"
+        "&field=start_date:datetime"
+        "&field=end_date:datetime"
     )
     vl = QgsVectorLayer(uri, name, "memory")
     if not vl.isValid():

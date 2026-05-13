@@ -163,7 +163,7 @@ def friend_air_frame(fill: str, stroke: str, dashed: bool = False) -> str:
         f"L {x},{y + ry} "  # left side to arc start
         f"A {rx},{ry} 0 0 1 {x + w},{y + ry} "  # top arc
         f"L {x + w},{y + h} "  # right side
-        f"Z"
+        "Z"
     )
     return f'<path d="{d}" fill="{fill}" {sa}/>'
 
@@ -177,7 +177,7 @@ def hostile_air_frame(fill: str, stroke: str, dashed: bool = False) -> str:
         f"M {cx},{cy + hh} "
         f"L {cx - hw},{cy} "
         f"A {hw},{hh * 0.6} 0 0 1 {cx + hw},{cy} "
-        f"Z"
+        "Z"
     )
     return f'<path d="{d}" fill="{fill}" {sa}/>'
 
@@ -193,7 +193,7 @@ def neutral_air_frame(fill: str, stroke: str, dashed: bool = False) -> str:
         f"L {x},{y + ry} "
         f"A {rx},{ry} 0 0 1 {x + s},{y + ry} "
         f"L {x + s},{y + s} "
-        f"Z"
+        "Z"
     )
     return f'<path d="{d}" fill="{fill}" {sa}/>'
 
@@ -237,7 +237,7 @@ def friend_sea_frame(fill: str, stroke: str, dashed: bool = False) -> str:
         f"L {x + w},{y} "
         f"L {x + w},{y + h} "
         f"A {w / 2},{20} 0 0 1 {x},{y + h} "
-        f"Z"
+        "Z"
     )
     return f'<path d="{d}" fill="{fill}" {sa}/>'
 
@@ -266,7 +266,7 @@ def neutral_sea_frame(fill: str, stroke: str, dashed: bool = False) -> str:
         f"L {x + s},{y} "
         f"L {x + s},{y + s} "
         f"A {s / 2},{18} 0 0 1 {x},{y + s} "
-        f"Z"
+        "Z"
     )
     return f'<path d="{d}" fill="{fill}" {sa}/>'
 

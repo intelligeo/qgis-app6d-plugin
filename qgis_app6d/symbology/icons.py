@@ -223,9 +223,9 @@ def icon_medical() -> str:
     """Medical / Health services – red cross (+)."""
     return _g(
         f'<rect x="{_CX - 6}" y="{_CY - 22}" width="12" height="44" '
-        f'fill="#ff0000" stroke="none"/>'
+        'fill="#ff0000" stroke="none"/>'
         f'<rect x="{_CX - 22}" y="{_CY - 6}" width="44" height="12" '
-        f'fill="#ff0000" stroke="none"/>',
+        'fill="#ff0000" stroke="none"/>',
         "Medical",
     )
 
@@ -287,7 +287,7 @@ def icon_military_police() -> str:
     """Military police – MP text."""
     return _g(
         f'<text x="{_CX}" y="{_CY + 8}" text-anchor="middle" '
-        f'font-size="26" font-weight="bold" font-family="Arial" '
+        'font-size="26" font-weight="bold" font-family="Arial" '
         f'fill="{_SC}">MP</text>',
         "Military Police",
     )
@@ -309,7 +309,7 @@ def icon_electronic_warfare() -> str:
     """Electronic warfare – zigzag wave."""
     y = _CY
     return _g(
-        f'<polyline points='
+        '<polyline points='
         f'"{_CX - 40},{y} {_CX - 27},{y - 18} {_CX - 13},{y + 18} '
         f'{_CX},{y} {_CX + 13},{y - 18} {_CX + 27},{y + 18} {_CX + 40},{y}" '
         f'fill="none" stroke="{_SC}" stroke-width="{_SW}"/>',
@@ -462,7 +462,7 @@ def icon_activity_generic() -> str:
     """Generic activity – exclamation mark."""
     return _g(
         f'<text x="{_CX}" y="{_CY + 12}" text-anchor="middle" '
-        f'font-size="40" font-weight="bold" font-family="Arial" '
+        'font-size="40" font-weight="bold" font-family="Arial" '
         f'fill="{_SC}">!</text>',
         "Activity",
     )
@@ -641,7 +641,7 @@ def icon_civil_affairs() -> str:
     """Civil affairs – CA text."""
     return _g(
         f'<text x="{_CX}" y="{_CY + 8}" text-anchor="middle" '
-        f'font-size="22" font-weight="bold" font-family="Arial" '
+        'font-size="22" font-weight="bold" font-family="Arial" '
         f'fill="{_SC}">CA</text>',
         "Civil Affairs",
     )
@@ -651,7 +651,7 @@ def icon_public_affairs() -> str:
     """Public affairs – PA text."""
     return _g(
         f'<text x="{_CX}" y="{_CY + 8}" text-anchor="middle" '
-        f'font-size="22" font-weight="bold" font-family="Arial" '
+        'font-size="22" font-weight="bold" font-family="Arial" '
         f'fill="{_SC}">PA</text>',
         "Public Affairs",
     )
@@ -673,7 +673,7 @@ def icon_finance() -> str:
     """Finance – dollar sign."""
     return _g(
         f'<text x="{_CX}" y="{_CY + 12}" text-anchor="middle" '
-        f'font-size="36" font-weight="bold" font-family="Arial" '
+        'font-size="36" font-weight="bold" font-family="Arial" '
         f'fill="{_SC}">$</text>',
         "Finance",
     )

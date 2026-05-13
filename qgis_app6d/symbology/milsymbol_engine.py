@@ -290,8 +290,8 @@ class MilSymbolEngine:
             f"(function() {{"
             f"  var opts = {opts_json};"
             f"  var sym = new module.exports.Symbol({json.dumps(sidc)}, opts);"
-            f"  return sym.asSVG();"
-            f"}})()"
+            "  return sym.asSVG();"
+            "}})()"
         )
 
         result = self._engine.evaluate(js_code)
@@ -454,7 +454,7 @@ class MilSymbolEngine:
         # Insert an invisible placeholder rect right after the opening <svg ...> tag
         placeholder = (
             f'<rect x="{vb_x}" y="{new_y}" '
-            f'width="1" height="1" fill="none" opacity="0"/>'
+            'width="1" height="1" fill="none" opacity="0"/>'
         )
         # Insert after the first '>'
         idx = svg.index(">") + 1

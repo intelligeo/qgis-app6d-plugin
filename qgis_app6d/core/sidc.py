@@ -369,7 +369,7 @@ def validate_sidc(code: str) -> SIDCValidation:
     return SIDCValidation(
         valid=False,
         error=f"Invalid SIDC format: '{code}'. "
-              f"Expected APP-6D (20 alphanumeric) or 2525C (10-15 chars with dashes)"
+              "Expected APP-6D (20 alphanumeric) or 2525C (10-15 chars with dashes)"
     )
 
 
@@ -436,16 +436,16 @@ def convert_2525c_to_app6d(sidc_15: str) -> str:
     entity = entity_raw.ljust(6, "0")[:6]
 
     return (
-        f"10"  # version = APP-6D
-        f"0"  # context = Reality
+        "10"  # version = APP-6D
+        "0"  # context = Reality
         f"{si.value}"  # standard identity
         f"{ss.value}"  # symbol set
         f"{status}"  # status
-        f"0"  # HQ/TF/Dummy = none
-        f"00"  # amplifier = none
+        "0"  # HQ/TF/Dummy = none
+        "00"  # amplifier = none
         f"{entity}"  # entity
-        f"00"  # modifier 1
-        f"00"  # modifier 2
+        "00"  # modifier 1
+        "00"  # modifier 2
     )
 
 

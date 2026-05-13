@@ -362,7 +362,7 @@ def render_operational_condition(condition: str, shape: str) -> str:
         fr = frame_right(shape)
         return (
             f'<line x1="{fl}" y1="{fb}" x2="{fr}" y2="{ft}" '
-            f'stroke="#ff0000" stroke-width="4"/>'
+            'stroke="#ff0000" stroke-width="4"/>'
         )
     if condition == "destroyed":
         ft = frame_top(shape)
@@ -371,9 +371,9 @@ def render_operational_condition(condition: str, shape: str) -> str:
         fr = frame_right(shape)
         return (
             f'<line x1="{fl}" y1="{fb}" x2="{fr}" y2="{ft}" '
-            f'stroke="#ff0000" stroke-width="4"/>'
+            'stroke="#ff0000" stroke-width="4"/>'
             f'<line x1="{fl}" y1="{ft}" x2="{fr}" y2="{fb}" '
-            f'stroke="#ff0000" stroke-width="4"/>'
+            'stroke="#ff0000" stroke-width="4"/>'
         )
     return ""
 
@@ -454,7 +454,7 @@ def render_designation(text: str, shape: str) -> str:
     by = frame_bottom(shape) + 18
     return (
         f'<text x="{_CX}" y="{by}" text-anchor="middle" '
-        f'font-size="14" font-family="Arial,Helvetica,sans-serif" '
+        'font-size="14" font-family="Arial,Helvetica,sans-serif" '
         f'fill="{_SC}">{_escape(text)}</text>'
     )
 
@@ -466,7 +466,7 @@ def render_higher_formation(text: str, shape: str) -> str:
     ty = frame_top(shape) - 32
     return (
         f'<text x="{_CX}" y="{ty}" text-anchor="middle" '
-        f'font-size="11" font-family="Arial,Helvetica,sans-serif" '
+        'font-size="11" font-family="Arial,Helvetica,sans-serif" '
         f'fill="{_SC}">{_escape(text)}</text>'
     )
 

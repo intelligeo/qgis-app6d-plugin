@@ -60,13 +60,13 @@ class CatalogEntry:
         if self.symbol_set == "40" and identity == "3":
             identity = "1"
         return (
-            f"10"  # version
-            f"0"  # context = Reality
+            "10"  # version
+            "0"  # context = Reality
             f"{identity}"  # standard identity
             f"{self.symbol_set}"  # symbol set
             f"{status}"  # status
-            f"0"  # HQ/TF/Dummy = none
-            f"00"  # amplifier = none
+            "0"  # HQ/TF/Dummy = none
+            "00"  # amplifier = none
             f"{self.entity_code}"  # entity (6 digits)
             f"{self.modifier_1}"  # modifier 1
             f"{self.modifier_2}"  # modifier 2

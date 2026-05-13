@@ -370,8 +370,8 @@ class UnitEditDialog(QDialog):
         m2 = raw_m2 if len(raw_m2) == 2 else "00"
 
         return (
-            f"10"  # version
-            f"0"  # context = Reality
+            "10"  # version
+            "0"  # context = Reality
             f"{identity.value}"
             f"{ss.value}"
             f"{status.value}"

@@ -1044,7 +1044,7 @@ class SymbolEditorDockWidget(QDockWidget):
         m2 = self._mod2_combo.currentData() or "00"
 
         return (
-            f"10"
+            "10"
             f"{ctx}"
             f"{identity.value}"
             f"{ss.value}"

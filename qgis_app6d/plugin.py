@@ -806,7 +806,7 @@ class QgisApp6Plugin:
 
     def show_about(self) -> None:
         """Show the About dialog."""
-        text = f"""
+        text = """
 <h3>{_PLUGIN_NAME}</h3>
 <p><b>Version {_PLUGIN_VERSION}</b></p>
 <p>
