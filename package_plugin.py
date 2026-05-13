@@ -13,16 +13,13 @@ Uso
     python package_plugin.py --bump 0.2.0 # aggiorna metadata.txt e crea lo zip
 
 Lo ZIP contiene la cartella radice ``qgis_app6d/`` con tutti i file
-necessari, più la cartella ``resources/`` copiata all'interno, risultando
-nella struttura attesa dal plugin loader di QGIS::
+necessari. La cartella ``resources/`` non viene inclusa.
 
     qgis_app6d/
     ├── __init__.py
     ├── metadata.txt
     ├── plugin.py
     ├── logger.py
-    ├── resources/
-    │   └── nato_icon.svg
     ├── core/
     │   ├── __init__.py
     │   ├── models.py
@@ -70,9 +67,6 @@ from pathlib import Path
 
 PLUGIN_DIR_NAME = "qgis_app6d"
 METADATA_FILE = "metadata.txt"
-
-# Cartella risorse da includere *dentro* il plugin
-RESOURCES_DIR = "resources"
 
 # Pattern di file/cartelle da escludere dallo ZIP
 EXCLUDE_PATTERNS: list[str] = [
@@ -173,18 +167,7 @@ def _collect_files(root: Path) -> list[tuple[Path, str]]:
             arc = str(Path(PLUGIN_DIR_NAME) / extra)
             files.append((extra_path, arc))
 
-    # 3) Cartella resources/ (dati, orbat, icone, …) copiata dentro qgis_app6d/resources/
-    res_dir = root / RESOURCES_DIR
-    if res_dir.is_dir():
-        for dirpath, _dirnames, filenames in os.walk(res_dir):
-            for fn in sorted(filenames):
-                abs_path = Path(dirpath) / fn
-                rel_from_res = abs_path.relative_to(res_dir)
-                arc = str(Path(PLUGIN_DIR_NAME) / RESOURCES_DIR / rel_from_res)
-                if _should_exclude(arc):
-                    continue
-                files.append((abs_path, arc))
-
+    # 3) La cartella resources/ non viene inclusa nel pacchetto ZIP.
     return files
 
 

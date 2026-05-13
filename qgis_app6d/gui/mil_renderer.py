@@ -86,7 +86,7 @@ def _write_svg_file(sym) -> str:
     
     # Build a unique filename
     key = f"{sidc}|{desig}|{hf}|{quant}|{staff}|{addinfo}|{evalrat}|{combeff}|{dtg}|{typestr}|{speed}|{alt}|{dr}"
-    suffix = _hl.md5(key.encode()).hexdigest()[:8]
+    suffix = _hl.md5(key.encode(), usedforsecurity=False).hexdigest()[:8]
     fname = f"sm_{suffix}.svg"
     path = os.path.join(svg_dir, fname)
     
