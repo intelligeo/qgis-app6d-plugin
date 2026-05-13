@@ -32,6 +32,7 @@ from qgis.core import (
 )
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QEvent, QObject, Qt
+from qgis.PyQt.QtWidgets import QApplication
 
 from ..logger import get_logger
 
@@ -78,6 +79,12 @@ class CanvasInteractionFilter(QObject):
 
         # ---- Drag enter --------------------------------------------------
         if evt_type == QEvent.DragEnter:
+            if ev.mimeData().hasFormat(MILSYMB_MIME_TYPE):
+                ev.acceptProposedAction()
+                return True
+
+        # ---- Drag move – must accept to keep the drop cursor active ------
+        elif evt_type == QEvent.DragMove:
             if ev.mimeData().hasFormat(MILSYMB_MIME_TYPE):
                 ev.acceptProposedAction()
                 return True

@@ -61,77 +61,219 @@ LOG = get_logger("qgis_milsymb.gui.symbol_editor_dock")
 
 _PREVIEW_SIZE = 96
 
-# Dictionary of some common APP-6D Modifiers for UI
-_COMMON_MOD1 = {
-    "00": "None",
-    "01": "Air Assault",
-    "02": "Airborne",
-    "03": "Airborne and Air Assault",
-    "04": "Amphibious",
-    "05": "Airmobile",
-    "06": "Bicycle Equipped",
-    "07": "Hovercraft",
-    "08": "Light",
-    "09": "Mechanized",
-    "10": "Motorized",
-    "11": "Mountain",
-    "12": "Ski",
-    "13": "Stryker / Medium",
-    "14": "Dismounted / Towed",
-    "15": "Aviation",
-    "16": "Pack Animal",
-    "17": "Autonomous Control",
-    "18": "Remotely Piloted",
-    "31": "Close Range",
-    "32": "Short Range",
-    "33": "Medium Range",
-    "34": "Long Range",
-    "35": "Intercontinental",
-    "41": "Multiple Rocket Launcher",
-    "42": "Single Rocket Launcher",
-    "43": "Ground to Air",
-    "44": "Ground to Ground",
-    "45": "Air to Air",
-    "46": "Air to Ground",
-    "47": "Air to Subsurface",
-    "48": "Anti-Tank",
-    "49": "Anti-Ship",
-    "51": "Attack / Strike",
-    "52": "Bomb",
-    "53": "Heavy",
-    "54": "Medium",
-    "55": "Light",
-    "61": "Ballistic",
-    "62": "Cruise",
-    "63": "Interceptor",
-    "71": "Cyber",
-    "72": "Electronic Warfare",
-    "73": "Signals Intelligence",
-    "74": "Unmanned Aerial System",
-}
-
-_COMMON_MOD2 = {
-    "00": "None",
-    "01": "Airborne",
-    "02": "Arctic",
-    "04": "Bicycle Equipped",
-    "07": "Close Range",
-    "09": "Decontamination",
-    "11": "Dismounted",
-    "14": "Electronic Warfare",
-    "15": "Explosive Ordnance Disposal",
-    "16": "Heavy",
-    "19": "Light",
-    "20": "Long Range",
-    "22": "Medium",
-    "24": "Medium Range",
-    "26": "Motorized",
-    "27": "Mountain",
-    "33": "Short Range",
-    "35": "Tracked",
-    "36": "Wheeled",
-    "37": "Towed",
-    "38": "Railway",
+# Per-symbol-set APP-6D Modifier label dictionaries.
+# Keys are SymbolSet.value strings; each entry has "m1" and "m2" sub-dicts
+# mapping two-digit code strings to human-readable labels.
+_MOD_LABELS: dict[str, dict[str, dict[str, str]]] = {
+    "01": {  # Air
+        "m1": {
+            "00": "None",
+            "01": "Attack", "02": "Bomber", "03": "Cargo", "04": "Fighter",
+            "05": "Interceptor", "06": "Tanker", "07": "Utility", "08": "VSTOL",
+            "09": "Passenger", "10": "Ultra Light", "11": "Airborne Command Post",
+            "12": "Airborne Early Warning", "13": "Government", "14": "Medevac",
+            "15": "Escort", "16": "Jammer/ECM", "17": "Patrol",
+            "18": "Reconnaissance", "19": "Trainer", "20": "Photographic",
+            "21": "Personnel Recovery", "22": "ASW", "23": "Communications",
+            "24": "Electronic Support", "25": "Mine Countermeasures", "26": "SAR",
+            "27": "SOF", "28": "Surface Warfare", "29": "VIP",
+            "30": "Combat SAR", "31": "SEAD", "32": "Antisurface Warfare",
+            "33": "Fighter/Bomber", "34": "Intensive Care",
+            "35": "Electronic Attack", "36": "Multimission",
+            "37": "Hijacking", "38": "ASW LAMPS", "39": "ASW SH-60R",
+            "40": "Hijacker", "41": "Cyberspace",
+        },
+        "m2": {
+            "00": "None",
+            "01": "Heavy", "02": "Medium", "03": "Light",
+            "04": "Boom-Only", "05": "Drogue-Only", "06": "Boom and Drogue",
+            "07": "Close Range", "08": "Short Range", "09": "Medium Range",
+            "10": "Long Range", "11": "Downlinked", "12": "Cyberspace",
+        },
+    },
+    "02": {  # Air Missile
+        "m1": {
+            "00": "None",
+            "01": "Air", "02": "Surface", "03": "Subsurface", "04": "Space",
+            "05": "Anti-Ballistic", "06": "Ballistic", "07": "Cruise",
+            "08": "Interceptor", "09": "Hypersonic",
+        },
+        "m2": {
+            "00": "None",
+            "01": "Air", "02": "Surface", "03": "Subsurface", "04": "Space",
+            "05": "Launched", "06": "Missile", "07": "Patriot", "08": "SM-2",
+            "09": "SM-6", "10": "ESSM", "11": "RAM",
+            "12": "Short Range", "13": "Medium Range",
+            "14": "Intermediate Range", "15": "Long Range",
+            "16": "Intercontinental",
+        },
+    },
+    "06": {  # Space Missile
+        "m1": {
+            "00": "None",
+            "01": "Ballistic", "02": "Space", "03": "Interceptor",
+            "04": "Hypersonic",
+        },
+        "m2": {
+            "00": "None",
+            "01": "Short Range", "02": "Medium Range",
+            "03": "Intermediate Range", "04": "Long Range",
+            "05": "Intercontinental", "06": "Arrow", "07": "GBI",
+            "08": "Patriot", "09": "SM-T", "10": "SM-3", "11": "THAAD",
+            "12": "Space", "13": "Close Range", "14": "Debris",
+            "15": "Unknown",
+        },
+    },
+    "10": {  # Land Unit
+        "m1": {
+            "00": "None",
+            "01": "Airmobile/Air Assault", "02": "Area", "03": "Attack",
+            "04": "Biological", "05": "Border", "06": "Bridging",
+            "07": "Chemical", "08": "Close Protection", "09": "Combat",
+            "10": "Command and Control",
+            "11": "Communications Contingency Package",
+            "12": "Construction", "13": "Cross Cultural Communication",
+            "14": "Crowd and Riot Control", "15": "Decontamination",
+            "16": "Detention", "17": "Direct Communications",
+            "18": "Diving", "19": "Division", "20": "Dog",
+            "21": "Drilling", "22": "Electro-Optical", "23": "Enhanced",
+            "24": "Explosive Ordnance Disposal",
+            "25": "Fire Direction Centre", "26": "Force", "27": "Forward",
+            "28": "Ground Station Module", "29": "Landing Support",
+            "30": "Large Extension Node", "31": "Maintenance",
+            "32": "Meteorological", "33": "Mine Countermeasure",
+            "34": "Missile", "35": "(Mobile) Advisor and Support",
+            "36": "Mobile Subscriber Equipment", "37": "Mobility Support",
+            "38": "Movement Control Centre", "39": "Multinational",
+            "40": "Multinational Specialized Unit",
+            "41": "Multiple Rocket Launcher",
+            "42": "NATO Medical Role 1", "43": "NATO Medical Role 2",
+            "44": "NATO Medical Role 3", "45": "NATO Medical Role 4",
+            "46": "Naval", "47": "Node Centre", "48": "Nuclear",
+            "49": "Operations", "50": "Radar",
+            "51": "RFID Interrogator/Sensor", "52": "Radiological",
+            "53": "Search and Rescue", "54": "Security", "55": "Sensor",
+            "56": "Sensor Control Module", "57": "Signals Intelligence",
+            "58": "Single Shelter Switch", "59": "Single Rocket Launcher",
+            "60": "Smoke", "61": "Sniper", "62": "Sound Ranging",
+            "63": "Special Operations Forces (SOF)",
+            "64": "Special Weapons and Tactics",
+            "65": "Survey", "66": "Tactical Exploitation",
+            "67": "Target Acquisition", "68": "Topographic",
+            "69": "Utility", "70": "Video Imagery",
+            "71": "Accident", "72": "Other", "73": "Civilian",
+            "74": "Antisubmarine Warfare", "75": "Medevac",
+            "76": "Ranger", "77": "Support", "78": "Aviation",
+            "79": "Route, Reconnaissance and Clearance",
+            "80": "Tilt-Rotor", "81": "Command Post Node",
+            "82": "Joint Network Node", "83": "Retransmission Site",
+            "84": "Assault", "85": "Weapons",
+            "86": "Criminal Investigation Division", "87": "Digital",
+            "88": "Network Operations", "89": "Airfield/Aerial Port",
+            "90": "Pipeline", "91": "Postal", "92": "Water",
+            "93": "Independent Command", "94": "Theatre",
+            "95": "Army", "96": "Corps", "97": "Brigade",
+            "98": "HQ Element", "99": "Multi-Domain",
+        },
+        "m2": {
+            "00": "None",
+            "01": "Airborne", "02": "Arctic", "03": "Battle Damage Repair",
+            "04": "Bicycle Equipped", "05": "Casualty Staging",
+            "06": "Clearing", "07": "Close Range", "08": "Control",
+            "09": "Decontamination", "10": "Demolition", "11": "Dental",
+            "12": "Digital", "13": "EPLRS", "14": "Equipment",
+            "15": "Heavy", "16": "High Altitude", "17": "Intermodal",
+            "18": "Intensive Care", "19": "Light", "20": "Laboratory",
+            "21": "Launcher", "22": "Long Range", "23": "Low Altitude",
+            "24": "Medium", "25": "Medium Altitude", "26": "Medium Range",
+            "27": "Mountain", "28": "High to Medium Altitude",
+            "29": "Multi-Channel", "30": "Optical", "31": "Pack Animal",
+            "32": "Patient Evacuation Coordination",
+            "33": "Preventive Maintenance", "34": "Psychological",
+            "35": "Radio Relay LOS", "36": "Railroad",
+            "37": "Recovery (Unmanned Systems)",
+            "38": "Recovery (Maintenance)",
+            "39": "Rescue Coordination Centre", "40": "Riverine",
+            "41": "Single Channel", "42": "Ski", "43": "Short Range",
+            "44": "Strategic", "45": "Support", "46": "Tactical",
+            "47": "Towed", "48": "Troop", "49": "VSTOL",
+            "50": "Veterinary", "51": "Wheeled",
+            "52": "High to Low Altitude", "53": "Medium to Low Altitude",
+            "54": "Attack", "55": "Refuel", "56": "Utility",
+            "57": "Combat Search and Rescue", "58": "Guerilla",
+            "59": "Air Assault", "60": "Amphibious", "61": "Very Heavy",
+            "62": "Supply", "63": "Cyberspace",
+            "74": "Composite", "75": "Shelter",
+            "76": "Light and Medium", "77": "Self-Propelled",
+            "78": "Security Force Assistance",
+            "81": "Surgical", "82": "Blood",
+            "83": "Combat Stress Control", "84": "Jamming",
+            "86": "Optometry", "87": "Preventive Medicine",
+            "89": "Air Defence",
+        },
+    },
+    "11": {  # Land Civilian
+        "m1": {
+            "00": "None",
+            "22": "Combat", "23": "Other", "24": "Loot",
+            "25": "Hijacker", "26": "Cyberspace",
+        },
+        "m2": {
+            "00": "None",
+            "01": "Leader/Leadership", "02": "Cyberspace",
+        },
+    },
+    "15": {  # Land Equipment
+        "m1": {
+            "00": "None",
+            "10": "Tilt-Rotor", "12": "Multi-Purpose Blade",
+            "13": "Tank-Width Mine Plow", "14": "Bridging",
+            "15": "Cyberspace", "16": "Armored", "17": "Attack",
+            "18": "Cargo", "19": "Maintenance", "20": "Medevac",
+            "21": "Petroleum", "22": "Utility", "23": "Water",
+            "24": "Robotic",
+        },
+        "m2": {
+            "00": "None",
+            "01": "Cyberspace", "02": "Light", "03": "Medium",
+            "04": "Railroad", "05": "Tracked", "06": "Tractor Trailer",
+            "07": "Wheeled Limited",
+        },
+    },
+    "20": {  # Land Installation
+        "m1": {
+            "00": "None",
+            "01": "Biological", "02": "Chemical", "03": "Nuclear",
+            "04": "Radiological", "05": "Decontamination",
+            "06": "Coal", "07": "Geothermal", "08": "Hydroelectric",
+            "09": "Natural Gas", "10": "Petroleum", "11": "Civilian",
+            "12": "Civilian Telephone", "13": "Civilian Television",
+            "14": "Cyberspace",
+        },
+        "m2": {"00": "None"},
+    },
+    "30": {  # Sea Surface
+        "m1": {
+            "00": "None",
+            "01": "Antisubmarine Warfare", "02": "Auxiliary",
+            "03": "Command and Control", "04": "ISR",
+            "05": "Mine Countermeasures", "06": "Mine Warfare",
+            "07": "Surface Warfare", "08": "Missile Defense",
+            "09": "Medical", "10": "Mine Warfare (Remote)",
+            "12": "SOF", "13": "Surface Warfare (Alternate)",
+            "14": "Ballistic Missile", "15": "Guided Missile",
+            "16": "Other Guided Missile", "17": "Torpedo",
+            "18": "Drone-Equipped", "19": "Helicopter-Equipped",
+            "20": "BMD Shooter", "21": "BMD LRS&T",
+            "22": "Sea-Base X-Band", "23": "Hijacking",
+            "25": "Cyberspace",
+        },
+        "m2": {"00": "None"},
+    },
+    "35": {  # Sea Subsurface
+        "m1": {"00": "None"},
+        "m2": {"00": "None"},
+    },
 }
 
 
@@ -343,6 +485,12 @@ class SymbolEditorDockWidget(QDockWidget):
         # Refresh entity list for the chosen symbol set
         self._refresh_entity_combo()
 
+        # Rebuild modifier combos and pre-select from catalog entry
+        self._refresh_mod_combos(
+            restore_m1=entry.modifier_1 or "00",
+            restore_m2=entry.modifier_2 or "00",
+        )
+
         # Select the matching entity (match by code + modifiers)
         for i in range(self._entity_combo.count()):
             data = self._entity_combo.itemData(i)
@@ -535,18 +683,12 @@ class SymbolEditorDockWidget(QDockWidget):
         sym_layout.addRow("Entity:", self._entity_combo)
 
         self._mod1_combo = QComboBox()
-        for i in range(0, 100):
-            code = f"{i:02d}"
-            label = _COMMON_MOD1.get(code, f"Modifier {code}")
-            self._mod1_combo.addItem(f"{code} - {label}", code)
+        self._mod1_combo.addItem("00 - None", "00")  # populated by _refresh_mod_combos
         self._mod1_combo.currentIndexChanged.connect(self._on_sym_changed)
         sym_layout.addRow("Modifier 1:", self._mod1_combo)
 
         self._mod2_combo = QComboBox()
-        for i in range(0, 100):
-            code = f"{i:02d}"
-            label = _COMMON_MOD2.get(code, f"Modifier {code}")
-            self._mod2_combo.addItem(f"{code} - {label}", code)
+        self._mod2_combo.addItem("00 - None", "00")  # populated by _refresh_mod_combos
         self._mod2_combo.currentIndexChanged.connect(self._on_sym_changed)
         sym_layout.addRow("Modifier 2:", self._mod2_combo)
 
@@ -661,6 +803,9 @@ class SymbolEditorDockWidget(QDockWidget):
 
         outer.addWidget(container)
 
+        # Initialise modifier combos for the default symbol set
+        self._refresh_mod_combos()
+
     @staticmethod
     def _make_optional_datetime(dt_edit, form_layout, label):
         cb = QCheckBox()
@@ -747,18 +892,13 @@ class SymbolEditorDockWidget(QDockWidget):
                 self._frame_combo.setCurrentIndex(i)
                 break
 
-        # SIDC modifier combos
-        for i in range(self._mod1_combo.count()):
-            if self._mod1_combo.itemData(i) == sidc.modifier1:
-                self._mod1_combo.setCurrentIndex(i)
-                break
-        for i in range(self._mod2_combo.count()):
-            if self._mod2_combo.itemData(i) == sidc.modifier2:
-                self._mod2_combo.setCurrentIndex(i)
-                break
-
-        # Symbol set
+        # Symbol set (must be set before rebuilding modifier combos)
         self._select_combo_data(self._symbol_set_combo, sidc.symbol_set)
+
+        # Rebuild modifier combos for this symbol set and pre-select codes
+        self._refresh_mod_combos(
+            restore_m1=sidc.modifier1, restore_m2=sidc.modifier2
+        )
 
         # Populate entities then select
         self._refresh_entity_combo()
@@ -829,7 +969,48 @@ class SymbolEditorDockWidget(QDockWidget):
 
     def _on_symbol_set_changed(self, _idx: int = 0) -> None:
         self._refresh_entity_combo()
+        self._refresh_mod_combos()
         self._on_sym_changed()
+
+    def _refresh_mod_combos(self, restore_m1: str = "", restore_m2: str = "") -> None:
+        """Rebuild modifier combos for the currently selected symbol set.
+
+        If *restore_m1* / *restore_m2* are given those codes are pre-selected
+        after the rebuild; otherwise the previously selected codes are kept.
+        """
+        ss: SymbolSet | None = self._symbol_set_combo.currentData()
+        ss_val = ss.value if ss else ""
+        entry = _MOD_LABELS.get(ss_val)
+        m1_labels: dict[str, str] = entry["m1"] if entry else {"00": "None"}
+        m2_labels: dict[str, str] = entry["m2"] if entry else {"00": "None"}
+
+        cur_m1 = restore_m1 or self._mod1_combo.currentData() or "00"
+        cur_m2 = restore_m2 or self._mod2_combo.currentData() or "00"
+
+        self._mod1_combo.blockSignals(True)
+        self._mod1_combo.clear()
+        for code, label in m1_labels.items():
+            self._mod1_combo.addItem(f"{code} - {label}", code)
+        # If the active code was not in the symbol-set dict, append it anyway
+        if cur_m1 not in m1_labels:
+            self._mod1_combo.addItem(f"{cur_m1} - (code {cur_m1})", cur_m1)
+        for i in range(self._mod1_combo.count()):
+            if self._mod1_combo.itemData(i) == cur_m1:
+                self._mod1_combo.setCurrentIndex(i)
+                break
+        self._mod1_combo.blockSignals(False)
+
+        self._mod2_combo.blockSignals(True)
+        self._mod2_combo.clear()
+        for code, label in m2_labels.items():
+            self._mod2_combo.addItem(f"{code} - {label}", code)
+        if cur_m2 not in m2_labels:
+            self._mod2_combo.addItem(f"{cur_m2} - (code {cur_m2})", cur_m2)
+        for i in range(self._mod2_combo.count()):
+            if self._mod2_combo.itemData(i) == cur_m2:
+                self._mod2_combo.setCurrentIndex(i)
+                break
+        self._mod2_combo.blockSignals(False)
 
     def _refresh_entity_combo(self) -> None:
         ss: SymbolSet = self._symbol_set_combo.currentData()

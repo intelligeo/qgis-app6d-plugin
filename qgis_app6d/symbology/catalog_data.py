@@ -321,8 +321,8 @@ SPACE_ENTRIES: list[CatalogEntry] = [
 
 SPACE_MISSILE_ENTRIES: list[CatalogEntry] = [
     CatalogEntry("06", "110000", "Space Missile", "Weltraum-Flugkörper", category="Missile"),
-    CatalogEntry("06", "110000", "Ballistic Missile (Space)", "Ballistische Rakete (Weltr.)", category="Missile", modifier_1="02"),
-    CatalogEntry("06", "110000", "Space Launch Vehicle (Missile)", "Trägerrakete (FK)", category="Missile", modifier_1="04"),
+    CatalogEntry("06", "110000", "Ballistic Missile (Space)", "Ballistische Rakete (Weltr.)", category="Missile", modifier_1="01"),  # M1=01 → BALLISTIC
+    CatalogEntry("06", "110000", "Space Launch Vehicle (Missile)", "Trägerrakete (FK)", category="Missile", modifier_1="02"),  # M1=02 → SPACE
 ]
 
 

@@ -28,7 +28,7 @@ import os
 import tempfile
 from typing import Optional
 
-from qgis.PyQt.QtCore import QObject, QVariant, pyqtSignal
+from qgis.PyQt.QtCore import QDateTime, QObject, Qt, QVariant, pyqtSignal
 from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
@@ -44,6 +44,7 @@ from qgis.core import (
     QgsSvgMarkerSymbolLayer,
     QgsSymbol,
     QgsVectorLayer,
+    QgsVectorLayerTemporalProperties,
     QgsWkbTypes,
 )
 
@@ -63,6 +64,8 @@ _FLD_SYM_ID = 0
 _FLD_SVG_PATH = 1
 _FLD_DESIGNATION = 2
 _FLD_COMMENT = 3
+_FLD_START_DATE = 4
+_FLD_END_DATE = 5
 
 # ---------------------------------------------------------------------------
 # SIDC helpers (unchanged from original version)
@@ -178,6 +181,21 @@ def _build_renderer(size_mm: float = _SYMBOL_SIZE_MM) -> QgsSingleSymbolRenderer
     return QgsSingleSymbolRenderer(marker)
 
 
+def _iso_to_qdt(iso: str | None) -> object:
+    """Convert an ISO-8601 string to ``QDateTime``, or return ``None``.
+
+    Returns ``None`` (which QGIS treats as NULL) when the string is
+    empty or cannot be parsed.
+    """
+    if not iso:
+        return None
+    # Try Qt.ISODate first ("yyyy-MM-ddTHH:mm:ss"), then date-only
+    dt = QDateTime.fromString(iso, Qt.ISODate)
+    if not dt.isValid():
+        dt = QDateTime.fromString(iso, "yyyy-MM-dd")
+    return dt if dt.isValid() else None
+
+
 def _make_vl(name: str) -> QgsVectorLayer:
     """Create a named in-memory Point layer with the plugin attribute schema."""
     uri = (
@@ -186,12 +204,25 @@ def _make_vl(name: str) -> QgsVectorLayer:
         f"&field=svg_path:string(512)"
         f"&field=designation:string(255)"
         f"&field=comment:string(512)"
+        f"&field=start_date:datetime"
+        f"&field=end_date:datetime"
     )
     vl = QgsVectorLayer(uri, name, "memory")
     if not vl.isValid():
         LOG.error("Failed to create memory layer '%s'", name)
         return vl
     vl.setRenderer(_build_renderer())
+
+    # Configure temporal properties so the QGIS Temporal Controller
+    # automatically filters this layer using start_date / end_date.
+    tp = vl.temporalProperties()
+    tp.setIsActive(True)
+    tp.setMode(
+        QgsVectorLayerTemporalProperties.ModeFeatureDateTimeStartAndEndFromFields
+    )
+    tp.setStartField("start_date")
+    tp.setEndField("end_date")
+
     return vl
 
 
@@ -204,6 +235,8 @@ def _feature_for_sym(sym: MilSymbol, svg_path: str) -> QgsFeature:
         svg_path or "",
         sym.designation or "",
         sym.comment or "",
+        _iso_to_qdt(sym.temporal.start),
+        _iso_to_qdt(sym.temporal.end),
     ])
     return feat
 
@@ -415,6 +448,8 @@ class SymbolLayerManager(QObject):
                 _FLD_SVG_PATH: svg_path,
                 _FLD_DESIGNATION: sym.designation or "",
                 _FLD_COMMENT: sym.comment or "",
+                _FLD_START_DATE: _iso_to_qdt(sym.temporal.start),
+                _FLD_END_DATE: _iso_to_qdt(sym.temporal.end),
             }})
             target_vl.triggerRepaint()
 
@@ -608,5 +643,7 @@ class SymbolLayerManager(QObject):
         ok, added = vl.dataProvider().addFeatures([feat])
         if ok and added:
             self._fid_map[sym.id] = (vl, added[0].id())
+            vl.updateExtents()
+            vl.triggerRepaint()
         else:
             LOG.error("Failed to add feature for sym %s", sym.id[:8])

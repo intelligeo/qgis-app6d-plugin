@@ -374,7 +374,10 @@ class QgisApp6Plugin:
         if self._editor_dock is None:
             self._ensure_editor_dock()
             self._editor_dock.reset_to_new_symbol_mode()
-        self._editor_dock.setVisible(checked)
+        if checked:
+            self._show_editor_dock()
+        else:
+            self._editor_dock.hide()
 
     def _on_orbat_edit_unit_requested(self, unit) -> None:
         """Open the Symbol Editor dock to edit an ORBAT unit."""
@@ -385,14 +388,12 @@ class QgisApp6Plugin:
             if sym is not None:
                 self._editor_dock.edit_symbol(sym)
                 self._editor_dock._orbat_unit = unit
-                self._editor_dock.show()
-                self._editor_dock.raise_()
+                self._show_editor_dock()
                 self._editor_action.setChecked(True)
                 return
 
         self._editor_dock.edit_orbat_unit(unit)
-        self._editor_dock.show()
-        self._editor_dock.raise_()
+        self._show_editor_dock()
         self._editor_action.setChecked(True)
 
     def _on_orbat_unit_updated(self, unit) -> None:
@@ -404,8 +405,7 @@ class QgisApp6Plugin:
         """Open the Symbol Editor dock and load *sym* for editing."""
         self._ensure_editor_dock()
         self._editor_dock.edit_symbol(sym)
-        self._editor_dock.show()
-        self._editor_dock.raise_()
+        self._show_editor_dock()
         self._editor_action.setChecked(True)
 
     def _on_catalog_edit_requested(self, payload) -> None:
@@ -415,8 +415,7 @@ class QgisApp6Plugin:
         identity = payload.get("identity")
         echelon = payload.get("echelon")
         self._editor_dock.load_from_catalog(entry, identity=identity, echelon=echelon)
-        self._editor_dock.show()
-        self._editor_dock.raise_()
+        self._show_editor_dock()
 
     def _ensure_editor_dock(self) -> None:
         """Create the floating editor dock if it does not exist yet."""
@@ -440,6 +439,18 @@ class QgisApp6Plugin:
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self._editor_dock)
         self._tabify_dock(self._editor_dock)
 
+    def _show_editor_dock(self) -> None:
+        """Ensure the editor dock is docked (not floating), visible and raised."""
+        if self._editor_dock is None:
+            return
+        # Re-dock if the user detached it or if it ended up floating
+        if self._editor_dock.isFloating():
+            self._editor_dock.setFloating(False)
+            self.iface.addDockWidget(Qt.RightDockWidgetArea, self._editor_dock)
+            self._tabify_dock(self._editor_dock)
+        self._editor_dock.show()
+        self._editor_dock.raise_()
+
     # ------------------------------------------------------------------
     # Canvas interaction filter
     # ------------------------------------------------------------------
@@ -459,6 +470,7 @@ class QgisApp6Plugin:
             )
             canvas.viewport().installEventFilter(self._canvas_filter)
             canvas.setAcceptDrops(True)
+            canvas.viewport().setAcceptDrops(True)
             LOG.info("Canvas interaction filter installed")
         except Exception as exc:
             LOG.error("Failed to install canvas interaction filter: %s", exc)

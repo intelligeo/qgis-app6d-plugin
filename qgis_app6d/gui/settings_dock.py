@@ -12,6 +12,8 @@ Sections
 
 from __future__ import annotations
 
+import configparser
+import os
 from typing import Optional
 
 from qgis.PyQt.QtCore import Qt, pyqtSignal
@@ -21,6 +23,7 @@ from qgis.PyQt.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QLabel,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QSlider,
@@ -146,6 +149,11 @@ class SettingsDockWidget(QDockWidget):
 
         layout.addWidget(def_group)
 
+        # ---- About button ----
+        self._about_btn = QPushButton("ℹ  About QGIS APP-6(D)")
+        self._about_btn.clicked.connect(self._on_about)
+        layout.addWidget(self._about_btn)
+
         # ---- Spacer ----
         layout.addStretch()
 
@@ -178,6 +186,68 @@ class SettingsDockWidget(QDockWidget):
             LOG.info("Symbol server restarted on port %d",
                      self._symbol_server.port)
         self._update_server_status()
+
+    def _on_about(self) -> None:
+        """Show an About dialog populated from metadata.txt."""
+        meta_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "metadata.txt"
+        )
+        cfg = configparser.ConfigParser()
+        cfg.read(meta_path, encoding="utf-8")
+        g = cfg["general"] if "general" in cfg else {}
+
+        name        = g.get("name",        "QGIS APP-6(D)")
+        version     = g.get("version",     "—")
+        author      = g.get("author",      "—")
+        email       = g.get("email",       "")
+        description = g.get("description", "")
+        about       = g.get("about",       "")
+        homepage    = g.get("homepage",    "")
+        tracker     = g.get("tracker",     "")
+        repository  = g.get("repository",  "")
+        bmc         = g.get("buymeacoffe", "")
+        license_    = g.get("license",     "")
+        qgis_min    = g.get("qgisminimumversion", "")
+        tags        = g.get("tags",        "")
+
+        lines = []
+        lines.append(f"<h2>{name} &nbsp; <small>v{version}</small></h2>")
+        if description:
+            lines.append(f"<p>{description}</p>")
+        if about:
+            lines.append(f"<p>{about}</p>")
+        lines.append("<hr>")
+        if author:
+            contact = f"<a href='mailto:{email}'>{email}</a>" if email else email
+            lines.append(f"<b>Author:</b> {author}")
+            if email:
+                lines.append(f" &mdash; {contact}")
+            lines.append("<br>")
+        if license_:
+            lines.append(f"<b>License:</b> {license_}<br>")
+        if qgis_min:
+            lines.append(f"<b>QGIS minimum version:</b> {qgis_min}<br>")
+        if tags:
+            lines.append(f"<b>Tags:</b> {tags}<br>")
+        lines.append("<br>")
+        if homepage:
+            lines.append(f"<b>Homepage:</b> <a href='{homepage}'>{homepage}</a><br>")
+        if repository:
+            lines.append(f"<b>Repository:</b> <a href='{repository}'>{repository}</a><br>")
+        if tracker:
+            lines.append(f"<b>Bug tracker:</b> <a href='{tracker}'>{tracker}</a><br>")
+        if bmc:
+            lines.append(f"<b>Support the project:</b> <a href='{bmc}'>{bmc}</a><br>")
+
+        box = QMessageBox(self)
+        box.setWindowTitle(f"About {name}")
+        box.setTextFormat(Qt.RichText)
+        box.setText("".join(lines))
+        box.setTextInteractionFlags(
+            Qt.TextBrowserInteraction
+        )
+        box.setStandardButtons(QMessageBox.Ok)
+        box.exec_()
 
     # ------------------------------------------------------------------
     # Public accessors for defaults

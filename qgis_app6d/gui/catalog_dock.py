@@ -19,9 +19,10 @@ from __future__ import annotations
 import json
 from typing import Optional
 
-from qgis.PyQt.QtCore import Qt, QByteArray, QMimeData, pyqtSignal
+from qgis.PyQt.QtCore import Qt, QByteArray, QMimeData, QPoint, pyqtSignal
 from qgis.PyQt.QtGui import QDrag, QIcon, QImage, QPainter, QPixmap
 from qgis.PyQt.QtWidgets import (
+    QApplication,
     QAction,
     QComboBox,
     QDockWidget,
@@ -190,10 +191,13 @@ class CatalogDockWidget(QDockWidget):
         self._tree.setHeaderHidden(True)
         self._tree.setIndentation(16)
         self._tree.setDragEnabled(True)
+        self._tree.setDragDropMode(QTreeWidget.DragOnly)
         self._tree.currentItemChanged.connect(self._on_tree_selection)
-        self._tree.itemPressed.connect(self._on_tree_item_pressed)
         self._tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._on_tree_context_menu)
+        # Track mouse press position for minimum-drag-distance check
+        self._drag_start_pos: QPoint | None = None
+        self._tree.viewport().installEventFilter(self)
         layout.addWidget(self._tree, 1)
 
         # ---- Preview ----
@@ -340,11 +344,45 @@ class CatalogDockWidget(QDockWidget):
         if self._selected_entry is not None:
             self._update_preview()
 
-    def _on_tree_item_pressed(self, item: QTreeWidgetItem, _column: int) -> None:
-        """Start a drag operation when a leaf symbol entry is pressed."""
+    # ------------------------------------------------------------------
+    # Drag-and-drop: event filter on tree viewport
+    # ------------------------------------------------------------------
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802
+        """Handle mouse press/move on the tree viewport to start DnD."""
+        from qgis.PyQt.QtCore import QEvent as _QEvent
+        from qgis.PyQt.QtGui import QMouseEvent as _QMouseEvent
+
+        if obj is self._tree.viewport():
+            if event.type() == _QEvent.MouseButtonPress:
+                if event.button() == Qt.LeftButton:
+                    self._drag_start_pos = QPoint(event.pos())
+                else:
+                    self._drag_start_pos = None
+
+            elif event.type() == _QEvent.MouseMove:
+                if (
+                    self._drag_start_pos is not None
+                    and (event.buttons() & Qt.LeftButton)
+                ):
+                    dist = (event.pos() - self._drag_start_pos).manhattanLength()
+                    if dist >= QApplication.startDragDistance():
+                        item = self._tree.itemAt(self._drag_start_pos)
+                        self._drag_start_pos = None
+                        if item is not None:
+                            self._start_drag(item)
+                        return True
+
+            elif event.type() == _QEvent.MouseButtonRelease:
+                self._drag_start_pos = None
+
+        return super().eventFilter(obj, event)
+
+    def _start_drag(self, item: QTreeWidgetItem) -> None:
+        """Start a DnD drag for *item* if it carries a CatalogEntry."""
         entry: CatalogEntry | None = item.data(0, Qt.UserRole)
         if entry is None:
-            return  # header/category rows are not draggable
+            return  # header / category rows are not draggable
 
         sidc = self._build_sidc()
         payload = {
@@ -361,8 +399,8 @@ class CatalogDockWidget(QDockWidget):
         )
         drag.setMimeData(mime)
 
-        # Use the current preview as drag-cursor image (48 px)
-        pixmap = self._render_sidc_pixmap(sidc, 48)
+        # Symbol preview as drag cursor (64 px)
+        pixmap = self._render_sidc_pixmap(sidc, 64)
         if pixmap:
             drag.setPixmap(pixmap)
             drag.setHotSpot(pixmap.rect().center())
