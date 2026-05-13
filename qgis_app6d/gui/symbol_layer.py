@@ -28,7 +28,7 @@ import os
 import tempfile
 from typing import Optional
 
-from qgis.PyQt.QtCore import QDateTime, QObject, Qt, QVariant, pyqtSignal
+from qgis.PyQt.QtCore import QDateTime, QObject, Qt, pyqtSignal
 from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,

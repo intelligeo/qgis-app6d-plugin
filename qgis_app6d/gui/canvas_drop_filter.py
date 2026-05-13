@@ -32,7 +32,6 @@ from qgis.core import (
 )
 from qgis.gui import QgsMapCanvas
 from qgis.PyQt.QtCore import QEvent, QObject, Qt
-from qgis.PyQt.QtWidgets import QApplication
 
 from ..logger import get_logger
 
