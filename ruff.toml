@@ -1,0 +1,19 @@
+line-length = 120
+
+[lint]
+# Rules enabled
+select = ["E", "F", "W", "B"]
+
+ignore = [
+    "W503",   # line break before binary operator (we use Knuth/Black style)
+    "E221",   # multiple spaces before operator (visual alignment in data tables)
+    "E241",   # multiple spaces after comma (visual alignment)
+    "E501",   # line too long (already covered by line-length above)
+    "F401",   # imported but unused ('from __future__ import annotations' is intentional)
+    "B404",   # import subprocess (flagged but needed for cross-platform log open)
+    "B603",   # subprocess call without shell=True is safe here
+    "B607",   # partial executable path in subprocess
+]
+
+[lint.per-file-ignores]
+"qgis_app6d/__init__.py" = ["F401", "F403"]
