@@ -361,8 +361,8 @@ class CatalogDockWidget(QDockWidget):
 
             elif event.type() == _QEvent.MouseMove:
                 if (
-                    self._drag_start_pos is not None and
-                    (event.buttons() & Qt.LeftButton)
+                    self._drag_start_pos is not None
+                    and (event.buttons() & Qt.LeftButton)
                 ):
                     dist = (event.pos() - self._drag_start_pos).manhattanLength()
                     if dist >= QApplication.startDragDistance():

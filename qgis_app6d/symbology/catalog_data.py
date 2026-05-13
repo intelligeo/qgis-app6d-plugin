@@ -804,10 +804,10 @@ def _sigint_entries(symbol_set: str) -> list[CatalogEntry]:
     ]
 
 
-SIGINT_SPACE_ENTRIES:      list[CatalogEntry] = _sigint_entries("50")
-SIGINT_AIR_ENTRIES:        list[CatalogEntry] = _sigint_entries("51")
-SIGINT_LAND_ENTRIES:       list[CatalogEntry] = _sigint_entries("52")
-SIGINT_SURFACE_ENTRIES:    list[CatalogEntry] = _sigint_entries("53")
+SIGINT_SPACE_ENTRIES: list[CatalogEntry] = _sigint_entries("50")
+SIGINT_AIR_ENTRIES: list[CatalogEntry] = _sigint_entries("51")
+SIGINT_LAND_ENTRIES: list[CatalogEntry] = _sigint_entries("52")
+SIGINT_SURFACE_ENTRIES: list[CatalogEntry] = _sigint_entries("53")
 SIGINT_SUBSURFACE_ENTRIES: list[CatalogEntry] = _sigint_entries("54")
 
 
@@ -976,7 +976,7 @@ def search_catalog(query: str) -> list[CatalogEntry]:
     return [
         e
         for e in ALL_ENTRIES
-        if q in e.name.lower() or
-        q in e.name_de.lower() or
-        q in e.category.lower()
+        if q in e.name.lower()
+        or q in e.name_de.lower()
+        or q in e.category.lower()
     ]

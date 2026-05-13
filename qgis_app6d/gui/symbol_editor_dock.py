@@ -494,10 +494,10 @@ class SymbolEditorDockWidget(QDockWidget):
         # Select the matching entity (match by code + modifiers)
         for i in range(self._entity_combo.count()):
             data = self._entity_combo.itemData(i)
-            if (data and
-                    data.entity_code == entry.entity_code and
-                    data.modifier_1 == entry.modifier_1 and
-                    data.modifier_2 == entry.modifier_2):
+            if (data
+                    and data.entity_code == entry.entity_code
+                    and data.modifier_1 == entry.modifier_1
+                    and data.modifier_2 == entry.modifier_2):
                 self._entity_combo.setCurrentIndex(i)
                 break
 

@@ -46,8 +46,8 @@ _PLUGIN_NAME = _PLUGIN_METADATA.get("name", "")
 _PLUGIN_VERSION = _PLUGIN_METADATA.get("version", "")
 _PLUGIN_AUTHOR = _PLUGIN_METADATA.get("author", "")
 _PLUGIN_URL = (
-    _PLUGIN_METADATA.get("repository") or
-    _PLUGIN_METADATA.get("homepage", "")
+    _PLUGIN_METADATA.get("repository")
+    or _PLUGIN_METADATA.get("homepage", "")
 )
 
 
@@ -624,9 +624,9 @@ class QgisApp6Plugin:
         from qgis.PyQt.QtWidgets import QMainWindow, QTabWidget
         mw = self.iface.mainWindow()
         mw.setDockOptions(
-            mw.dockOptions() |
-            QMainWindow.AllowTabbedDocks |
-            QMainWindow.AnimatedDocks
+            mw.dockOptions()
+            | QMainWindow.AllowTabbedDocks
+            | QMainWindow.AnimatedDocks
         )
         for area in (
             Qt.RightDockWidgetArea,
