@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] – 2026-05-13
+
+### Changed
+- Code style: binary operators moved to start of continuation lines (W503/W504 fix)
+  across `plugin.py`, `catalog_dock.py`, `symbol_editor_dock.py`, `catalog_data.py`,
+  `orbat_dock.py`, `symbol_move_tool.py`
+- Removed unnecessary `f`-prefix from 43 string literals without interpolation
+  (F541) across 11 files
+- `metadata.txt`: corrected `license` identifier to `GPL-2`; fixed typo
+  `buymeacoffe` → `buymeacoffee`; added required `changelog` field; added
+  `server=False` / `hasServerInterface=False`; bumped version to 0.1.4;
+  noted bundled milsymbol.js in `about` field (no external Python deps)
+- Added `ruff.toml` (ruff linting configuration for VS Code extension)
+- Added `setup.cfg` (flake8 configuration: extend-ignore W503, E221, E241, F401)
+- GitHub Actions lint workflow: restricted to manual trigger only (`workflow_dispatch`)
+
 ## [0.1.3] – 2026-05-13
 
 ### Changed
@@ -43,7 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layer Manager dock: named symbol layers, per-layer JSON export
 - Temporal filtering integrated with the QGIS Temporal Controller
 
-[Unreleased]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.0...v0.1.1
