@@ -252,10 +252,10 @@ def main() -> None:
 
     print()
     print("Per installare in QGIS:")
-    print(f"  1. Apri Plugin Manager → Installa da ZIP")
+    print("  1. Apri Plugin Manager → Installa da ZIP")
     print(f"  2. Seleziona: {out_path.name}")
     print(f"  3. Oppure copia la cartella '{PLUGIN_DIR_NAME}/' in:")
-    print(f"     ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/")
+    print("     ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/")
 
 
 if __name__ == "__main__":
