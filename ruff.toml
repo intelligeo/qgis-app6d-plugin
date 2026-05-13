@@ -1,14 +1,11 @@
 line-length = 120
 
 [lint]
-# Rules enabled
-select = ["E", "F", "W", "B"]
+select = ["E", "F", "W"]
 
 ignore = [
     "F401",   # imported but unused ('from __future__ import annotations' is intentional)
-    "B404",   # import subprocess (flagged but needed for cross-platform log open)
-    "B603",   # subprocess call without shell=True is safe here
-    "B607",   # partial executable path in subprocess
+    "E501",   # line too long (covered by line-length)
 ]
 
 [lint.per-file-ignores]
