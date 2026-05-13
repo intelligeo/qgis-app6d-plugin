@@ -128,8 +128,8 @@ class SymbolMoveTool(QgsMapTool):
         """Escape cancels the move and restores the original position."""
         if event.key() == Qt.Key_Escape:
             if (
-                self._original_lon is not None
-                and self._original_lat is not None
+                self._original_lon is not None and
+                self._original_lat is not None
             ):
                 sym = self._layer_manager.get_symbol(self._sym_id)
                 if sym is not None:

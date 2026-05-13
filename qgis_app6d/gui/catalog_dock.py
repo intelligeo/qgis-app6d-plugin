@@ -351,7 +351,6 @@ class CatalogDockWidget(QDockWidget):
     def eventFilter(self, obj, event) -> bool:  # noqa: N802
         """Handle mouse press/move on the tree viewport to start DnD."""
         from qgis.PyQt.QtCore import QEvent as _QEvent
-        from qgis.PyQt.QtGui import QMouseEvent as _QMouseEvent
 
         if obj is self._tree.viewport():
             if event.type() == _QEvent.MouseButtonPress:
@@ -362,8 +361,8 @@ class CatalogDockWidget(QDockWidget):
 
             elif event.type() == _QEvent.MouseMove:
                 if (
-                    self._drag_start_pos is not None
-                    and (event.buttons() & Qt.LeftButton)
+                    self._drag_start_pos is not None and
+                    (event.buttons() & Qt.LeftButton)
                 ):
                     dist = (event.pos() - self._drag_start_pos).manhattanLength()
                     if dist >= QApplication.startDragDistance():

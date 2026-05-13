@@ -976,7 +976,7 @@ def search_catalog(query: str) -> list[CatalogEntry]:
     return [
         e
         for e in ALL_ENTRIES
-        if q in e.name.lower()
-        or q in e.name_de.lower()
-        or q in e.category.lower()
+        if q in e.name.lower() or
+        q in e.name_de.lower() or
+        q in e.category.lower()
     ]

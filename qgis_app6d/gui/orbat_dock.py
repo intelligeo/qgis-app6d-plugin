@@ -298,9 +298,9 @@ class OrbatDockWidget(QDockWidget):
             tw.setData(0, Qt.UserRole, unit)
             tw.setIcon(0, _unit_icon(unit))
             tw.setFlags(
-                tw.flags()
-                | Qt.ItemIsDragEnabled
-                | Qt.ItemIsDropEnabled
+                tw.flags() |
+                Qt.ItemIsDragEnabled |
+                Qt.ItemIsDropEnabled
             )
 
             if parent_item is not None:
