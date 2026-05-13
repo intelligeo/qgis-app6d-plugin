@@ -166,7 +166,14 @@ def _collect_files(root: Path) -> list[tuple[Path, str]]:
             # arcname = qgis_app6d/…
             files.append((abs_path, str(rel)))
 
-    # 2) Cartella resources/ (dati, orbat, icone, …) copiata dentro qgis_app6d/resources/
+    # 2) File radice: LICENSE e README.md inclusi dentro qgis_app6d/
+    for extra in ("LICENSE", "README.md"):
+        extra_path = root / extra
+        if extra_path.is_file():
+            arc = str(Path(PLUGIN_DIR_NAME) / extra)
+            files.append((extra_path, arc))
+
+    # 3) Cartella resources/ (dati, orbat, icone, …) copiata dentro qgis_app6d/resources/
     res_dir = root / RESOURCES_DIR
     if res_dir.is_dir():
         for dirpath, _dirnames, filenames in os.walk(res_dir):

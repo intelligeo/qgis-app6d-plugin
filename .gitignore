@@ -42,3 +42,5 @@ local_settings.py
 
 # Ancillary files
 resources/
+blog_post_intelligeo.md
+blog_post_intelligeo_en.md

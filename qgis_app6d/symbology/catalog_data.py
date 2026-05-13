@@ -889,19 +889,6 @@ CYBERSPACE_ENTRIES: list[CatalogEntry] = [
 ]
 
 
-# ======================================================================
-# Swiss conventional signs (Reg. 52.002.04) – placeholders
-# ======================================================================
-
-SWISS_CONVENTIONAL_ENTRIES: list[CatalogEntry] = [
-    CatalogEntry("10", "310000", "Civil Protection",    "Zivilschutz",        category="Swiss Conventional", name_fr="Protection civile", name_it="Protezione civile"),
-    CatalogEntry("10", "320000", "Fire Brigade",        "Feuerwehr",          category="Swiss Conventional", name_fr="Pompiers",           name_it="Pompieri"),
-    CatalogEntry("10", "330000", "Police",              "Polizei",            category="Swiss Conventional", name_fr="Police",             name_it="Polizia"),
-    CatalogEntry("10", "340000", "Border Guard",        "Grenzwachtkorps",    category="Swiss Conventional", name_fr="Cgfr",               name_it="Cgcf"),
-    CatalogEntry("10", "350000", "Customs",             "Zoll",               category="Swiss Conventional", name_fr="Douane",             name_it="Dogana"),
-    CatalogEntry("10", "360000", "Health Service",      "Gesundheitsdienst",  category="Swiss Conventional", name_fr="Service sanitaire",  name_it="Servizio sanitario"),
-]
-
 
 # ======================================================================
 # Aggregate catalog
@@ -926,7 +913,6 @@ ALL_ENTRIES: list[CatalogEntry] = (
     + SIGINT_SURFACE_ENTRIES
     + SIGINT_SUBSURFACE_ENTRIES
     + CYBERSPACE_ENTRIES
-    + SWISS_CONVENTIONAL_ENTRIES
 )
 
 
