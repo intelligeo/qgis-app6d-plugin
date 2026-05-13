@@ -110,8 +110,6 @@ class QgisApp6Plugin:
 
     def initGui(self) -> None:  # noqa: N802
         """Create toolbar, Plugins menu entries and dock widgets."""
-        tools_icon = plugin_path("icons", "tools.svg")
-
         # ---- Symbol Catalog action (checkable toggle) ----
         self._catalog_action = self._make_action(
             icon_path=plugin_path("icons", "milsymb.svg"),
