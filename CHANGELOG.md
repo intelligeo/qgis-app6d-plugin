@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] – 2026-05-14
+
+### Fixed
+- `milsymbol_engine.py`: `SyntaxError` in generated JS due to missing `f` prefix on last two lines of `as_svg` JS template (`}}` was not being interpreted as escaped braces, producing malformed JS).
+
+### Added
+- Layer Manager dock: **Export all layers as KMZ** and **Export current layer as KMZ** buttons.
+  - KMZ = ZIP archive containing `doc.kml` + `icons/<sidc>.png` for each placed symbol.
+  - Icons rendered via `milsymbol_engine` → `QSvgRenderer` → `QImage` → PNG.
+  - KML built with plain string concatenation + `html.escape()` (no `xml.etree.ElementTree.register_namespace`).
+
+---
+
+## [0.1.5] (previous – reverted) – 2026-05-14
+
+### Reverted
+- KMZ export feature (introduced in this version) caused a symbol rendering
+  regression in the catalog and on the map canvas.  The feature has been
+  reverted pending root-cause investigation and a clean reimplementation.
+
 ## [0.1.4] – 2026-05-13
 
 ### Changed
@@ -21,8 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `buymeacoffe` → `buymeacoffee`; added required `changelog` field; added
   `server=False` / `hasServerInterface=False`; bumped version to 0.1.4;
   noted bundled milsymbol.js in `about` field (no external Python deps)
-- Added `ruff.toml` (ruff linting configuration for VS Code extension)
-- Added `setup.cfg` (flake8 configuration: extend-ignore W503, E221, E241, F401)
 - GitHub Actions lint workflow: restricted to manual trigger only (`workflow_dispatch`)
 
 ## [0.1.3] – 2026-05-13

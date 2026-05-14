@@ -290,8 +290,8 @@ class MilSymbolEngine:
             f"(function() {{"
             f"  var opts = {opts_json};"
             f"  var sym = new module.exports.Symbol({json.dumps(sidc)}, opts);"
-            "  return sym.asSVG();"
-            "}})()"
+            f"  return sym.asSVG();"
+            f"}})()"
         )
 
         result = self._engine.evaluate(js_code)

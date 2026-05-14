@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Layer management dock widget – add, rename, delete symbol layers and
+Layer management dock widget to add, rename, delete symbol layers and
 export data per-layer or as a single multi-layer JSON file.
 
 Integrated into the main plugin panel as a collapsible group at the top
@@ -9,11 +9,11 @@ of the catalog dock, or as a standalone dock accessible from the ribbon.
 
 from __future__ import annotations
 
+import html
 import io
 import os
 import zipfile
-from typing import Optional
-from xml.etree import ElementTree as ET
+from typing import List, Optional
 
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtWidgets import (
@@ -45,9 +45,9 @@ class LayerManagerDockWidget(QDockWidget):
 
     Features
     --------
-    * Layer selector (QComboBox) – pick the active layer
+    * Layer selector (QComboBox) to pick the active layer
     * Add / Rename / Delete buttons
-    * Export panel – single multi-layer JSON **or** one file per layer
+    * Export panel to single multi-layer JSON **or** one file per layer
 
     Signals
     -------
@@ -121,13 +121,13 @@ class LayerManagerDockWidget(QDockWidget):
         sel_row.addWidget(self._add_btn)
 
         self._rename_btn = QToolButton()
-        self._rename_btn.setText("✎")
+        self._rename_btn.setText("Γ£Ä")
         self._rename_btn.setToolTip("Rename layer")
         self._rename_btn.clicked.connect(self._on_rename)
         sel_row.addWidget(self._rename_btn)
 
         self._del_btn = QToolButton()
-        self._del_btn.setText("−")
+        self._del_btn.setText("ΓêÆ")
         self._del_btn.setToolTip("Delete layer")
         self._del_btn.clicked.connect(self._on_delete)
         sel_row.addWidget(self._del_btn)
@@ -164,15 +164,15 @@ class LayerManagerDockWidget(QDockWidget):
         exp_layout.addLayout(row3)
 
         row4 = QHBoxLayout()
-        self._export_kmz_all_btn = QPushButton("Export all layers as KMZ")
-        self._export_kmz_all_btn.clicked.connect(self._on_export_kmz_all)
-        row4.addWidget(self._export_kmz_all_btn)
+        self._export_all_kmz_btn = QPushButton("Export all layers as KMZ")
+        self._export_all_kmz_btn.clicked.connect(self._on_export_all_kmz)
+        row4.addWidget(self._export_all_kmz_btn)
         exp_layout.addLayout(row4)
 
         row5 = QHBoxLayout()
-        self._export_kmz_current_btn = QPushButton("Export current layer as KMZ")
-        self._export_kmz_current_btn.clicked.connect(self._on_export_kmz_current)
-        row5.addWidget(self._export_kmz_current_btn)
+        self._export_current_kmz_btn = QPushButton("Export current layer as KMZ")
+        self._export_current_kmz_btn.clicked.connect(self._on_export_current_kmz)
+        row5.addWidget(self._export_current_kmz_btn)
         exp_layout.addLayout(row5)
 
         root.addWidget(exp_grp)
@@ -226,7 +226,7 @@ class LayerManagerDockWidget(QDockWidget):
         self._info_lbl.setText(f"Symbols: {len(sl.symbols)}")
 
     # ------------------------------------------------------------------
-    # Slots – combo
+    # Slots to combo
     # ------------------------------------------------------------------
 
     def _on_combo_changed(self, idx: int) -> None:
@@ -239,7 +239,7 @@ class LayerManagerDockWidget(QDockWidget):
         self._update_info()
 
     # ------------------------------------------------------------------
-    # Slots – add / rename / delete
+    # Slots to add / rename / delete
     # ------------------------------------------------------------------
 
     def _on_add(self) -> None:
@@ -299,7 +299,7 @@ class LayerManagerDockWidget(QDockWidget):
         self._refresh_combo()
 
     # ------------------------------------------------------------------
-    # Slots – layer_manager signals
+    # Slots to layer_manager signals
     # ------------------------------------------------------------------
 
     def _on_layer_added(self, _lid: str) -> None:
@@ -403,88 +403,8 @@ class LayerManagerDockWidget(QDockWidget):
             LOG.info("Exported layer '%s' to %s", sl.name, path)
         except Exception as exc:
             QMessageBox.critical(self, "Export error", str(exc))
-
-    # ------------------------------------------------------------------
-    # KMZ helpers
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _build_kml(layers_data: list[tuple[str, list]]) -> bytes:
-        """Build a KML document from a list of (layer_name, symbols) tuples.
-
-        Returns the KML as UTF-8 encoded bytes.
-        """
-        KML_NS = "http://www.opengis.net/kml/2.2"
-        ET.register_namespace("", KML_NS)
-
-        def tag(name: str) -> str:
-            return f"{{{KML_NS}}}{name}"
-
-        kml_root = ET.Element(tag("kml"))
-        doc = ET.SubElement(kml_root, tag("Document"))
-        doc_name = ET.SubElement(doc, tag("name"))
-        doc_name.text = "MilSymb Export"
-
-        for layer_name, symbols in layers_data:
-            folder = ET.SubElement(doc, tag("Folder"))
-            fn = ET.SubElement(folder, tag("name"))
-            fn.text = layer_name
-
-            for sym in symbols:
-                pm = ET.SubElement(folder, tag("Placemark"))
-
-                nm = ET.SubElement(pm, tag("name"))
-                nm.text = sym.designation or sym.sidc
-
-                parts = []
-                if sym.sidc:
-                    parts.append(f"SIDC: {sym.sidc}")
-                if sym.higher_formation:
-                    parts.append(f"Higher formation: {sym.higher_formation}")
-                if sym.comment:
-                    parts.append(f"Comment: {sym.comment}")
-                if sym.staff_comments:
-                    parts.append(f"Staff comments: {sym.staff_comments}")
-                if sym.additional_information:
-                    parts.append(f"Additional info: {sym.additional_information}")
-                if sym.dtg:
-                    parts.append(f"DTG: {sym.dtg}")
-                if sym.speed:
-                    parts.append(f"Speed: {sym.speed}")
-                if sym.altitude_depth:
-                    parts.append(f"Altitude/Depth: {sym.altitude_depth}")
-                if parts:
-                    desc = ET.SubElement(pm, tag("description"))
-                    desc.text = "\n".join(parts)
-
-                if sym.direction is not None:
-                    ext = ET.SubElement(pm, tag("ExtendedData"))
-                    ed = ET.SubElement(ext, tag("Data"))
-                    ed.set("name", "direction")
-                    val = ET.SubElement(ed, tag("value"))
-                    val.text = str(sym.direction)
-
-                pt = ET.SubElement(pm, tag("Point"))
-                coords = ET.SubElement(pt, tag("coordinates"))
-                coords.text = f"{sym.longitude},{sym.latitude},0"
-
-        tree = ET.ElementTree(kml_root)
-        buf = io.BytesIO()
-        tree.write(buf, encoding="utf-8", xml_declaration=True)
-        return buf.getvalue()
-
-    @staticmethod
-    def _write_kmz(kml_bytes: bytes, kmz_path: str) -> None:
-        """Wrap *kml_bytes* inside a .kmz archive at *kmz_path*."""
-        with zipfile.ZipFile(kmz_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr("doc.kml", kml_bytes)
-
-    # ------------------------------------------------------------------
-    # Slots – KMZ export
-    # ------------------------------------------------------------------
-
-    def _on_export_kmz_all(self) -> None:
-        """Export all layers into a single KMZ file."""
+    def _on_export_all_kmz(self) -> None:
+        """Export all layers as a single KMZ file with embedded PNG icons."""
         if self._project_data is None:
             return
         default_dir = milsymb_data_dir()
@@ -492,17 +412,12 @@ class LayerManagerDockWidget(QDockWidget):
             self,
             "Export all layers as KMZ",
             os.path.join(default_dir, "milsymb_all_layers.kmz"),
-            "KMZ (*.kmz);;All files (*)",
+            "KMZ file (*.kmz);;All files (*)",
         )
         if not path:
             return
         try:
-            layers_data = [
-                (sl.name, sl.symbols)
-                for sl in self._project_data.layers
-            ]
-            kml_bytes = self._build_kml(layers_data)
-            self._write_kmz(kml_bytes, path)
+            self._write_kmz(path, self._project_data.layers)
             n_sym = sum(len(sl.symbols) for sl in self._project_data.layers)
             n_lyr = len(self._project_data.layers)
             QMessageBox.information(
@@ -513,8 +428,8 @@ class LayerManagerDockWidget(QDockWidget):
         except Exception as exc:
             QMessageBox.critical(self, "Export error", str(exc))
 
-    def _on_export_kmz_current(self) -> None:
-        """Export only the currently selected layer as KMZ."""
+    def _on_export_current_kmz(self) -> None:
+        """Export the currently selected layer as a KMZ file."""
         lid = self._current_layer_id()
         if lid is None or self._project_data is None:
             return
@@ -527,13 +442,12 @@ class LayerManagerDockWidget(QDockWidget):
             self,
             f"Export layer \"{sl.name}\" as KMZ",
             os.path.join(default_dir, f"milsymb_layer_{safe_name}.kmz"),
-            "KMZ (*.kmz);;All files (*)",
+            "KMZ file (*.kmz);;All files (*)",
         )
         if not path:
             return
         try:
-            kml_bytes = self._build_kml([(sl.name, sl.symbols)])
-            self._write_kmz(kml_bytes, path)
+            self._write_kmz(path, [sl])
             QMessageBox.information(
                 self, "Export complete",
                 f"Exported layer \"{sl.name}\" ({len(sl.symbols)} symbols) to\n{path}",
@@ -541,3 +455,138 @@ class LayerManagerDockWidget(QDockWidget):
             LOG.info("Exported layer '%s' as KMZ to %s", sl.name, path)
         except Exception as exc:
             QMessageBox.critical(self, "Export error", str(exc))
+
+    # ------------------------------------------------------------------
+    # KMZ helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _sidc_to_png_bytes(sidc: str, size: int = 64) -> Optional[bytes]:
+        """Render a symbol SIDC to PNG bytes via milsymbol engine.
+
+        Returns ``None`` if the engine is unavailable or rendering fails.
+        """
+        try:
+            from ..symbology.milsymbol_engine import get_engine
+            from qgis.PyQt.QtCore import QByteArray, QBuffer
+            from qgis.PyQt.QtGui import QImage, QPainter
+            from qgis.PyQt.QtSvg import QSvgRenderer
+
+            engine = get_engine()
+            if not engine.is_ready:
+                return None
+            svg_str = engine.as_svg(sidc, size=size)
+            if not svg_str:
+                return None
+
+            renderer = QSvgRenderer()
+            renderer.load(svg_str.encode("utf-8"))
+            if not renderer.isValid():
+                return None
+
+            img = QImage(size, size, QImage.Format_ARGB32_Premultiplied)
+            img.fill(0)  # transparent
+            painter = QPainter(img)
+            renderer.render(painter)
+            painter.end()
+
+            buf = QBuffer()
+            buf.open(QBuffer.WriteOnly)
+            img.save(buf, "PNG")
+            buf.close()
+            return bytes(buf.data())
+        except Exception:
+            return None
+
+    @staticmethod
+    def _build_kml(layers, icon_files: dict) -> str:
+        """Build a KML string for the given layers.
+
+        Parameters
+        ----------
+        layers:
+            Iterable of ``SymbolLayer`` objects.
+        icon_files : dict
+            Mapping ``sidc -> 'icons/<sidc>.png'`` for icons that were
+            successfully rendered.  Used to set ``<href>`` in KML.
+        """
+        lines: List[str] = []
+        lines.append('<?xml version="1.0" encoding="UTF-8"?>')
+        lines.append('<kml xmlns="http://www.opengis.net/kml/2.2">')
+        lines.append('  <Document>')
+
+        # One Folder per layer
+        for sl in layers:
+            lines.append('    <Folder>')
+            lines.append(f'      <name>{html.escape(sl.name)}</name>')
+
+            for sym in sl.symbols:
+                if sym.longitude == 0.0 and sym.latitude == 0.0:
+                    continue  # skip unplaced symbols
+
+                icon_href = icon_files.get(sym.sidc, "")
+
+                lines.append('      <Placemark>')
+                label = sym.designation or sym.sidc
+                lines.append(f'        <name>{html.escape(label)}</name>')
+
+                # Build description from available amplifiers
+                desc_parts: List[str] = []
+                if sym.sidc:
+                    desc_parts.append(f"SIDC: {html.escape(sym.sidc)}")
+                if sym.higher_formation:
+                    desc_parts.append(f"Higher: {html.escape(sym.higher_formation)}")
+                if sym.comment:
+                    desc_parts.append(html.escape(sym.comment))
+                if desc_parts:
+                    lines.append(
+                        f'        <description>{" | ".join(desc_parts)}</description>'
+                    )
+
+                if icon_href:
+                    lines.append('        <Style>')
+                    lines.append('          <IconStyle>')
+                    lines.append(f'            <Icon><href>{html.escape(icon_href)}</href></Icon>')
+                    lines.append('          </IconStyle>')
+                    lines.append('        </Style>')
+
+                lines.append('        <Point>')
+                lines.append(
+                    f'          <coordinates>'
+                    f'{sym.longitude:.7f},{sym.latitude:.7f},0'
+                    f'</coordinates>'
+                )
+                lines.append('        </Point>')
+                lines.append('      </Placemark>')
+
+            lines.append('    </Folder>')
+
+        lines.append('  </Document>')
+        lines.append('</kml>')
+        return "\n".join(lines)
+
+    def _write_kmz(self, path: str, layers) -> None:
+        """Write KMZ (ZIP of doc.kml + icons/*.png) to *path*."""
+        # Collect unique SIDCs from placed symbols
+        all_sidcs: set = set()
+        for sl in layers:
+            for sym in sl.symbols:
+                if sym.longitude != 0.0 or sym.latitude != 0.0:
+                    all_sidcs.add(sym.sidc)
+
+        # Render icons (no ElementTree, no register_namespace)
+        icon_files: dict = {}   # sidc -> archive path string
+        icon_data: dict = {}    # archive path -> bytes
+        for sidc in all_sidcs:
+            png = self._sidc_to_png_bytes(sidc, size=64)
+            if png:
+                arc_path = f"icons/{sidc}.png"
+                icon_files[sidc] = arc_path
+                icon_data[arc_path] = png
+
+        kml_str = self._build_kml(layers, icon_files)
+
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("doc.kml", kml_str.encode("utf-8"))
+            for arc_path, data in icon_data.items():
+                zf.writestr(arc_path, data)

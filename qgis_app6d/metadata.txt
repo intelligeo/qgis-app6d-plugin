@@ -3,8 +3,7 @@ name=APP-6(D) Military Symbols
 qgisMinimumVersion=3.16
 qgisMaximumVersion=3.99
 description=APP-6(D) Military Symbols is a QGIS plugin providing a full military symbol library following the NATO APP-6(D) standard, an ORBAT manager & temporal management for QGIS.
-about=Providing a full military symbol library for QGIS following the NATO APP-6(D) standard with 20-character SIDC, a built-in SVG/PNG rendering server, hierarchical ORBAT (Order of Battle) management, and temporal layer filtering via the QGIS Temporal Controller. Backward compatible with QGIS 3.16+.
-No external Python dependencies required. The milsymbol.js rendering library is bundled inside the plugin package.
+about=Providing a full military symbol library for QGIS following the NATO APP-6(D) standard with 20-character SIDC, a built-in SVG/PNG rendering server, hierarchical ORBAT (Order of Battle) management, and temporal layer filtering via the QGIS Temporal Controller. Backward compatible with QGIS 3.16+. No external Python dependencies required. The milsymbol.js rendering library is bundled inside the plugin package.
 version=0.1.5
 author=INTELLIGEO.ch
 email=ask@intelligeo.ch
@@ -17,7 +16,7 @@ tracker=https://github.com/intelligeo/qgis-app6d-plugin/issues
 repository=https://github.com/intelligeo/qgis-app6d-plugin
 buymeacoffee=https://www.buymeacoffee.com/intelligeo
 
-changelog=0.1.5 - Add KMZ export (all layers / current layer) to Layer Manager dock
+changelog=0.1.5 - Fix milsymbol JS SyntaxError (f-string bug); re-implement KMZ export with embedded PNG icons
     0.1.4 - Code style cleanup: binary operator placement (W503/W504), remove unnecessary f-string prefixes, add ruff.toml and setup.cfg for linting; lint workflow restricted to manual trigger only
     0.1.3 - Full PEP 8 / Flake8 style cleanup; plugin constants read from metadata.txt; resources/ excluded from ZIP
     0.1.2 - hashlib.md5 usedforsecurity=False fix; renamed ambiguous variable E741
@@ -25,7 +24,7 @@ changelog=0.1.5 - Add KMZ export (all layers / current layer) to Layer Manager d
     0.1.0 - Initial public release
 
 icon=icons/milsymb.svg
-experimental=True
+experimental=False
 deprecated=False
 hasProcessingProvider=no
 server=False

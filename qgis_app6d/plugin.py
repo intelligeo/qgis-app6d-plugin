@@ -202,6 +202,10 @@ class QgisApp6Plugin:
         # Start the built-in symbol rendering server
         self._start_symbol_server()
 
+        # Eagerly initialise the milsymbol engine so any failure is
+        # reported immediately in the QGIS log (not silently deferred).
+        self._init_milsymbol_engine()
+
         # Initialise the symbol layer manager (QgsVectorLayer-backed)
         self._init_layer_manager()
 
@@ -614,6 +618,43 @@ class QgisApp6Plugin:
             self._symbol_server.stop()
             self._symbol_server = None
             LOG.info("Symbol server stopped")
+
+    def _init_milsymbol_engine(self) -> None:
+        """Eagerly initialise the milsymbol.js engine and log its status.
+
+        The engine is normally initialised lazily on first render.  This
+        method forces early initialisation so that any QJSEngine / JS
+        load failure is reported to the QGIS log immediately rather than
+        silently falling back to the Python renderer with no indication.
+        """
+        try:
+            from .symbology.milsymbol_engine import get_engine
+            engine = get_engine()
+            if engine.is_ready:
+                LOG.info(
+                    "milsymbol.js engine initialised successfully "
+                    "(APP-6D rendering active)"
+                )
+            else:
+                LOG.warning(
+                    "milsymbol.js engine NOT available – "
+                    "symbols will be rendered by the Python fallback renderer. "
+                    "Check that QtQml (QJSEngine) is available in this QGIS build "
+                    "and that qgis_app6d/symbology/js/milsymbol.js is present."
+                )
+                # Surface a one-time warning in the QGIS message bar
+                try:
+                    self.iface.messageBar().pushMessage(
+                        "APP-6(D)",
+                        "milsymbol.js engine unavailable – symbols use fallback "
+                        "renderer (see QGIS log for details).",
+                        level=1,  # Qgis.Warning
+                        duration=10,
+                    )
+                except Exception:
+                    pass
+        except Exception as exc:
+            LOG.error("Error initialising milsymbol engine: %s", exc)
 
     # ------------------------------------------------------------------
     # Dock toggling
