@@ -3,6 +3,7 @@
 [![QGIS](https://img.shields.io/badge/QGIS-3.16%2B-green.svg)](https://qgis.org)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](qgis_app6d/metadata.txt)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-yellow.svg?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/intelligeo)
 
 A QGIS 3 plugin providing a full military symbol library following the **NATO APP-6(D)** standard, an ORBAT manager, and temporal layer filtering via the QGIS Temporal Controller.
 
@@ -98,6 +99,15 @@ See [QUICKSTART.md](QUICKSTART.md) for a step-by-step guide to installing and us
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
+
+## Support
+
+If you find this plugin useful, consider buying me a coffee ☕
+
+<a href="https://www.buymeacoffee.com/intelligeo" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+       alt="Buy Me A Coffee" width="180">
+</a>
 
 ## License
 

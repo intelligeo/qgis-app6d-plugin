@@ -44,3 +44,6 @@ local_settings.py
 resources/
 blog_post_intelligeo.md
 blog_post_intelligeo_en.md
+ruff.toml
+setup.cfg
+paper/
