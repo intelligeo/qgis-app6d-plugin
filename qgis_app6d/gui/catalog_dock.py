@@ -197,6 +197,9 @@ class CatalogDockWidget(QDockWidget):
         self._tree.customContextMenuRequested.connect(self._on_tree_context_menu)
         # Track mouse press position for minimum-drag-distance check
         self._drag_start_pos: QPoint | None = None
+        # Pixmap pre-rendered at selection time, reused in _start_drag
+        # to avoid any blocking render on the drag hot-path.
+        self._cached_drag_pixmap: QPixmap | None = None
         self._tree.viewport().installEventFilter(self)
         layout.addWidget(self._tree, 1)
 
@@ -401,13 +404,15 @@ class CatalogDockWidget(QDockWidget):
         )
         drag.setMimeData(mime)
 
-        # Symbol preview as drag cursor (64 px)
-        pixmap = self._render_sidc_pixmap(sidc, 64)
-        if pixmap:
+        # Symbol preview as drag cursor – use the pixmap already cached
+        # at selection time (_update_preview) so this hot-path never
+        # triggers a blocking SVG render.
+        pixmap = self._cached_drag_pixmap
+        if pixmap and not pixmap.isNull():
             drag.setPixmap(pixmap)
             drag.setHotSpot(pixmap.rect().center())
 
-        drag.exec_(Qt.CopyAction | Qt.MoveAction)
+        drag.exec_(Qt.CopyAction)
         LOG.debug("Drag started for SIDC=%s", sidc[:10])
 
     def _on_tree_context_menu(self, pos) -> None:
@@ -501,15 +506,27 @@ class CatalogDockWidget(QDockWidget):
     # ------------------------------------------------------------------
 
     def _update_preview(self) -> None:
-        """Render and display the currently selected symbol."""
+        """Render and display the currently selected symbol.
+
+        Also caches the rendered pixmap (48 px) for instant reuse
+        in *_start_drag* so the drag hot-path is never blocked by a
+        synchronous SVG render.
+        """
         sidc = self._build_sidc()
         self._sidc_label.setText(sidc)
 
         pixmap = self._render_sidc_pixmap(sidc, _PREVIEW_SIZE)
         if pixmap:
             self._preview_label.setPixmap(pixmap)
+            # Scale down to drag-cursor size without another render
+            self._cached_drag_pixmap = pixmap.scaled(
+                48, 48,
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation,
+            )
         else:
             self._preview_label.setText("(no preview)")
+            self._cached_drag_pixmap = None
 
     def _render_sidc_pixmap(self, sidc: str, size: int) -> QPixmap | None:
         """Render an SIDC to a QPixmap."""
