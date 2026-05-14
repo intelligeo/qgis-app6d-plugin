@@ -846,34 +846,88 @@ class QgisApp6Plugin:
     # ------------------------------------------------------------------
 
     def show_about(self) -> None:
-        """Show the About dialog."""
-        text = """
-<h3>{_PLUGIN_NAME}</h3>
-<p><b>Version {_PLUGIN_VERSION}</b></p>
-<p>
-  Military symbol library (APP-6D) with ORBAT management<br>
-  and temporal control for QGIS 3.16+.
-</p>
-<p>
-  Features:<br>
-  &bull; APP-6(D) symbol catalog with 20-char SIDC<br>
-  &bull; Built-in SVG/PNG rendering server<br>
-  &bull; ORBAT hierarchical manager<br>
-  &bull; QGIS Temporal Controller integration
-</p>
-<p>
-  Author: {_PLUGIN_AUTHOR}<br>
-  Repository: <a href="{_PLUGIN_URL}">{_PLUGIN_URL}</a>
-</p>
-<p style="font-size:10px; color:gray;">
-  Compatible with QGIS 3.16+ &middot; GPL-2.0 licence
-</p>
-"""
-        QMessageBox.about(
-            self.iface.mainWindow(),
-            f"About {_PLUGIN_NAME}",
-            text,
+        """Show the About dialog with plugin icon and Buy-me-a-coffee link."""
+        from qgis.PyQt.QtCore import Qt
+        from qgis.PyQt.QtGui import QPixmap
+        from qgis.PyQt.QtWidgets import (
+            QDialog, QDialogButtonBox, QHBoxLayout,
+            QLabel, QVBoxLayout,
         )
+
+        bmc_url = _PLUGIN_METADATA.get("buymeacoffee", "")
+        icon_path = plugin_path("icons", "milsymb.svg")
+
+        dlg = QDialog(self.iface.mainWindow())
+        dlg.setWindowTitle(f"About {_PLUGIN_NAME}")
+        dlg.setMinimumWidth(420)
+
+        root = QVBoxLayout(dlg)
+        root.setSpacing(12)
+
+        # ---- Header row: icon + title ----
+        header = QHBoxLayout()
+        icon_lbl = QLabel()
+        px = QPixmap(icon_path)
+        if not px.isNull():
+            icon_lbl.setPixmap(px.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        icon_lbl.setFixedSize(72, 72)
+        icon_lbl.setAlignment(Qt.AlignCenter)
+        header.addWidget(icon_lbl)
+
+        title_lbl = QLabel(
+            f"<h2>{_PLUGIN_NAME}</h2>"
+            f"<p style='margin:0'><b>Version {_PLUGIN_VERSION}</b></p>"
+        )
+        title_lbl.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        header.addWidget(title_lbl, 1)
+        root.addLayout(header)
+
+        # ---- Body ----
+        body_lbl = QLabel(
+            f"<p>Military symbol library (APP-6D) with ORBAT management"
+            f" and temporal control for QGIS 3.16+.</p>"
+            f"<p><b>Features</b><br>"
+            f"&bull; APP-6(D) symbol catalog with 20-char SIDC<br>"
+            f"&bull; Built-in SVG/PNG rendering server<br>"
+            f"&bull; ORBAT hierarchical manager<br>"
+            f"&bull; QGIS Temporal Controller integration<br>"
+            f"&bull; KMZ export with embedded PNG icons</p>"
+            f"<p>Author: {_PLUGIN_AUTHOR}<br>"
+            f"Repository: <a href='{_PLUGIN_URL}'>{_PLUGIN_URL}</a></p>"
+        )
+        body_lbl.setWordWrap(True)
+        body_lbl.setOpenExternalLinks(True)
+        body_lbl.setTextFormat(Qt.RichText)
+        root.addWidget(body_lbl)
+
+        # ---- Buy me a coffee ----
+        if bmc_url:
+            bmc_lbl = QLabel(
+                f"<p style='text-align:center'>"
+                f"<a href='{bmc_url}'>"
+                f"&#9749; Buy me a coffee – support this plugin!"
+                f"</a></p>"
+            )
+            bmc_lbl.setAlignment(Qt.AlignCenter)
+            bmc_lbl.setOpenExternalLinks(True)
+            bmc_lbl.setTextFormat(Qt.RichText)
+            root.addWidget(bmc_lbl)
+
+        # ---- Footer ----
+        footer_lbl = QLabel(
+            "<p style='font-size:10px; color:gray; text-align:center'>"
+            "Compatible with QGIS 3.16+ &middot; GPL-2.0 licence</p>"
+        )
+        footer_lbl.setAlignment(Qt.AlignCenter)
+        footer_lbl.setTextFormat(Qt.RichText)
+        root.addWidget(footer_lbl)
+
+        # ---- Close button ----
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(dlg.accept)
+        root.addWidget(buttons)
+
+        dlg.exec_()
 
     # ------------------------------------------------------------------
     # Log file

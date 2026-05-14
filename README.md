@@ -1,10 +1,10 @@
-# QGIS APP-6(D)
+# APP-6(D) Military Sombols for QGIS
 
 [![QGIS](https://img.shields.io/badge/QGIS-3.16%2B-green.svg)](https://qgis.org)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](qgis_app6d/metadata.txt)
 
-A QGIS 3 plugin providing a full military symbol library following the **APP-6(D)** standard, an ORBAT manager, and temporal layer filtering via the QGIS Temporal Controller.
+A QGIS 3 plugin providing a full military symbol library following the **NATO APP-6(D)** standard, an ORBAT manager, and temporal layer filtering via the QGIS Temporal Controller.
 
 > **Compatibility:** QGIS 3.16 LTR and later.
 
