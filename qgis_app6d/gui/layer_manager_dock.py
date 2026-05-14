@@ -9,8 +9,11 @@ of the catalog dock, or as a standalone dock accessible from the ribbon.
 
 from __future__ import annotations
 
+import io
 import os
+import zipfile
 from typing import Optional
+from xml.etree import ElementTree as ET
 
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtWidgets import (
@@ -159,6 +162,18 @@ class LayerManagerDockWidget(QDockWidget):
         self._export_current_btn.clicked.connect(self._on_export_current)
         row3.addWidget(self._export_current_btn)
         exp_layout.addLayout(row3)
+
+        row4 = QHBoxLayout()
+        self._export_kmz_all_btn = QPushButton("Export all layers as KMZ")
+        self._export_kmz_all_btn.clicked.connect(self._on_export_kmz_all)
+        row4.addWidget(self._export_kmz_all_btn)
+        exp_layout.addLayout(row4)
+
+        row5 = QHBoxLayout()
+        self._export_kmz_current_btn = QPushButton("Export current layer as KMZ")
+        self._export_kmz_current_btn.clicked.connect(self._on_export_kmz_current)
+        row5.addWidget(self._export_kmz_current_btn)
+        exp_layout.addLayout(row5)
 
         root.addWidget(exp_grp)
 
@@ -386,5 +401,143 @@ class LayerManagerDockWidget(QDockWidget):
                 f"Exported layer \"{sl.name}\" ({len(sl.symbols)} symbols) to\n{path}",
             )
             LOG.info("Exported layer '%s' to %s", sl.name, path)
+        except Exception as exc:
+            QMessageBox.critical(self, "Export error", str(exc))
+
+    # ------------------------------------------------------------------
+    # KMZ helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _build_kml(layers_data: list[tuple[str, list]]) -> bytes:
+        """Build a KML document from a list of (layer_name, symbols) tuples.
+
+        Returns the KML as UTF-8 encoded bytes.
+        """
+        KML_NS = "http://www.opengis.net/kml/2.2"
+        ET.register_namespace("", KML_NS)
+
+        def tag(name: str) -> str:
+            return f"{{{KML_NS}}}{name}"
+
+        kml_root = ET.Element(tag("kml"))
+        doc = ET.SubElement(kml_root, tag("Document"))
+        doc_name = ET.SubElement(doc, tag("name"))
+        doc_name.text = "MilSymb Export"
+
+        for layer_name, symbols in layers_data:
+            folder = ET.SubElement(doc, tag("Folder"))
+            fn = ET.SubElement(folder, tag("name"))
+            fn.text = layer_name
+
+            for sym in symbols:
+                pm = ET.SubElement(folder, tag("Placemark"))
+
+                nm = ET.SubElement(pm, tag("name"))
+                nm.text = sym.designation or sym.sidc
+
+                parts = []
+                if sym.sidc:
+                    parts.append(f"SIDC: {sym.sidc}")
+                if sym.higher_formation:
+                    parts.append(f"Higher formation: {sym.higher_formation}")
+                if sym.comment:
+                    parts.append(f"Comment: {sym.comment}")
+                if sym.staff_comments:
+                    parts.append(f"Staff comments: {sym.staff_comments}")
+                if sym.additional_information:
+                    parts.append(f"Additional info: {sym.additional_information}")
+                if sym.dtg:
+                    parts.append(f"DTG: {sym.dtg}")
+                if sym.speed:
+                    parts.append(f"Speed: {sym.speed}")
+                if sym.altitude_depth:
+                    parts.append(f"Altitude/Depth: {sym.altitude_depth}")
+                if parts:
+                    desc = ET.SubElement(pm, tag("description"))
+                    desc.text = "\n".join(parts)
+
+                if sym.direction is not None:
+                    ext = ET.SubElement(pm, tag("ExtendedData"))
+                    ed = ET.SubElement(ext, tag("Data"))
+                    ed.set("name", "direction")
+                    val = ET.SubElement(ed, tag("value"))
+                    val.text = str(sym.direction)
+
+                pt = ET.SubElement(pm, tag("Point"))
+                coords = ET.SubElement(pt, tag("coordinates"))
+                coords.text = f"{sym.longitude},{sym.latitude},0"
+
+        tree = ET.ElementTree(kml_root)
+        buf = io.BytesIO()
+        tree.write(buf, encoding="utf-8", xml_declaration=True)
+        return buf.getvalue()
+
+    @staticmethod
+    def _write_kmz(kml_bytes: bytes, kmz_path: str) -> None:
+        """Wrap *kml_bytes* inside a .kmz archive at *kmz_path*."""
+        with zipfile.ZipFile(kmz_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("doc.kml", kml_bytes)
+
+    # ------------------------------------------------------------------
+    # Slots – KMZ export
+    # ------------------------------------------------------------------
+
+    def _on_export_kmz_all(self) -> None:
+        """Export all layers into a single KMZ file."""
+        if self._project_data is None:
+            return
+        default_dir = milsymb_data_dir()
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export all layers as KMZ",
+            os.path.join(default_dir, "milsymb_all_layers.kmz"),
+            "KMZ (*.kmz);;All files (*)",
+        )
+        if not path:
+            return
+        try:
+            layers_data = [
+                (sl.name, sl.symbols)
+                for sl in self._project_data.layers
+            ]
+            kml_bytes = self._build_kml(layers_data)
+            self._write_kmz(kml_bytes, path)
+            n_sym = sum(len(sl.symbols) for sl in self._project_data.layers)
+            n_lyr = len(self._project_data.layers)
+            QMessageBox.information(
+                self, "Export complete",
+                f"Exported {n_lyr} layer(s) with {n_sym} symbol(s) to\n{path}",
+            )
+            LOG.info("Exported all layers as KMZ to %s", path)
+        except Exception as exc:
+            QMessageBox.critical(self, "Export error", str(exc))
+
+    def _on_export_kmz_current(self) -> None:
+        """Export only the currently selected layer as KMZ."""
+        lid = self._current_layer_id()
+        if lid is None or self._project_data is None:
+            return
+        sl = self._project_data.layer_by_id(lid)
+        if sl is None:
+            return
+        default_dir = milsymb_data_dir()
+        safe_name = sl.name.replace(" ", "_").replace("/", "_")
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            f"Export layer \"{sl.name}\" as KMZ",
+            os.path.join(default_dir, f"milsymb_layer_{safe_name}.kmz"),
+            "KMZ (*.kmz);;All files (*)",
+        )
+        if not path:
+            return
+        try:
+            kml_bytes = self._build_kml([(sl.name, sl.symbols)])
+            self._write_kmz(kml_bytes, path)
+            QMessageBox.information(
+                self, "Export complete",
+                f"Exported layer \"{sl.name}\" ({len(sl.symbols)} symbols) to\n{path}",
+            )
+            LOG.info("Exported layer '%s' as KMZ to %s", sl.name, path)
         except Exception as exc:
             QMessageBox.critical(self, "Export error", str(exc))
