@@ -68,6 +68,30 @@ from pathlib import Path
 PLUGIN_DIR_NAME = "qgis_app6d"
 METADATA_FILE = "metadata.txt"
 
+# Dimensione massima ZIP ammessa dal repository QGIS (20 MB)
+MAX_ZIP_SIZE_MB = 20
+MAX_ZIP_SIZE_BYTES = MAX_ZIP_SIZE_MB * 1024 * 1024
+
+# Campi obbligatori da validare in metadata.txt
+# (dai requisiti pubblicazione plugins.qgis.org)
+REQUIRED_METADATA_FIELDS: list[str] = [
+    "name",
+    "qgisMinimumVersion",
+    "description",
+    "about",
+    "version",
+    "author",
+    "email",
+    "repository",
+]
+
+# Campi che devono contenere un URL valido (http/https)
+URL_METADATA_FIELDS: list[str] = [
+    "homepage",
+    "repository",
+    "tracker",
+]
+
 # Pattern di file/cartelle da escludere dallo ZIP
 EXCLUDE_PATTERNS: list[str] = [
     "__pycache__",
@@ -124,6 +148,66 @@ def _read_metadata_version(metadata_path: Path) -> str:
     return match.group(1).strip()
 
 
+def _validate_metadata(metadata_path: Path) -> list[str]:
+    """Verifica i requisiti minimi per il QGIS Plugin Repository.
+
+    Restituisce una lista di messaggi di errore/avviso (vuota = OK).
+    """
+    import configparser
+    import urllib.parse
+
+    warnings: list[str] = []
+    text = metadata_path.read_text(encoding="utf-8")
+
+    # Parse as INI-style
+    cfg = configparser.ConfigParser()
+    cfg.read_string(text)
+    if not cfg.has_section("general"):
+        warnings.append("ERRORE  metadata.txt: sezione [general] mancante")
+        return warnings
+    # configparser lowercases keys; build a case-insensitive lookup dict
+    fields = {k.lower(): v for k, v in cfg["general"].items()}
+
+    # Campi obbligatori
+    for f in REQUIRED_METADATA_FIELDS:
+        if not fields.get(f.lower(), "").strip():
+            warnings.append(f"ERRORE  metadata.txt: campo obbligatorio '{f}' mancante o vuoto")
+
+    # Campi URL
+    for f in URL_METADATA_FIELDS:
+        val = fields.get(f, "").strip()
+        if val:
+            parsed = urllib.parse.urlparse(val)
+            if parsed.scheme not in ("http", "https"):
+                warnings.append(f"AVVISO  metadata.txt: '{f}' non è un URL http/https valido: {val}")
+        elif f == "repository":
+            warnings.append("ERRORE  metadata.txt: campo obbligatorio 'repository' mancante")
+
+    # Licenza GPLv2+
+    lic = fields.get("license", "").strip().lower()
+    if lic and not any(k in lic for k in ("gpl", "gnu")):
+        warnings.append(f"AVVISO  metadata.txt: la licenza '{fields.get('license')}' potrebbe non essere compatibile GPLv2+")
+
+    # Campi raccomandati (avvisi non bloccanti)
+    for rec in ("homepage", "tracker", "changelog", "icon", "tags"):
+        if not fields.get(rec, "").strip():
+            warnings.append(f"AVVISO  metadata.txt: campo raccomandato '{rec}' mancante o vuoto")
+
+    # Icona: deve essere PNG o JPEG (SVG tollerato ma non consigliato)
+    icon_val = fields.get("icon", "").strip()
+    if icon_val:
+        icon_ext = Path(icon_val).suffix.lower()
+        if icon_ext == ".svg":
+            warnings.append(
+                f"AVVISO  metadata.txt: 'icon' punta a {icon_val!r} (SVG). "
+                "Il repository QGIS raccomanda PNG o JPEG per la massima compatibilità."
+            )
+        elif icon_ext not in (".png", ".jpg", ".jpeg"):
+            warnings.append(f"AVVISO  metadata.txt: formato icona non standard: {icon_ext!r}")
+
+    return warnings
+
+
 def _bump_version(metadata_path: Path, new_version: str) -> None:
     """Aggiorna il campo *version* in metadata.txt."""
     text = metadata_path.read_text(encoding="utf-8")
@@ -171,6 +255,28 @@ def _collect_files(root: Path) -> list[tuple[Path, str]]:
     return files
 
 
+def _check_icon_in_files(metadata_path: Path, files: list[tuple[Path, str]]) -> None:
+    """Verifica che il file icona referenziato in metadata.txt sia presente nello ZIP."""
+    import configparser
+    text = metadata_path.read_text(encoding="utf-8")
+    cfg = configparser.ConfigParser()
+    cfg.read_string(text)
+    if not cfg.has_section("general"):
+        return
+    icon_val = cfg["general"].get("icon", "").strip()
+    if not icon_val:
+        return
+    # arcname atteso nello ZIP, es.: qgis_app6d/icons/milsymb.svg
+    expected_arcname = str(Path(PLUGIN_DIR_NAME) / icon_val)
+    arc_names = {arcname for _, arcname in files}
+    if expected_arcname.replace("\\", "/") not in {a.replace("\\", "/") for a in arc_names}:
+        print(
+            f"  ⚠ AVVISO: l'icona '{icon_val}' referenziata in metadata.txt "
+            f"non trovata nello ZIP (attesa: {expected_arcname})",
+            file=sys.stderr,
+        )
+
+
 def _create_zip(files: list[tuple[Path, str]], output: Path) -> None:
     """Scrive lo ZIP con compressione deflate."""
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -179,8 +285,16 @@ def _create_zip(files: list[tuple[Path, str]], output: Path) -> None:
         for abs_path, arcname in files:
             zf.write(abs_path, arcname)
 
-    size_kb = output.stat().st_size / 1024
+    size_bytes = output.stat().st_size
+    size_kb = size_bytes / 1024
     print(f"  ✔ {len(files)} file archiviati → {output}  ({size_kb:.1f} KB)")
+
+    if size_bytes > MAX_ZIP_SIZE_BYTES:
+        print(
+            f"\n  ⚠ ATTENZIONE: lo ZIP supera il limite di {MAX_ZIP_SIZE_MB} MB "
+            f"({size_bytes / 1024 / 1024:.1f} MB) richiesto dal QGIS Plugin Repository!",
+            file=sys.stderr,
+        )
 
 
 # ── Main ──────────────────────────────────────────────────────────────
@@ -229,6 +343,18 @@ def main() -> None:
     print(f"Data:   {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print()
 
+    # Validazione metadata
+    meta_issues = _validate_metadata(metadata_path)
+    has_errors = any(i.startswith("ERRORE") for i in meta_issues)
+    if meta_issues:
+        print("Validazione metadata.txt:")
+        for msg in meta_issues:
+            print(f"  {msg}")
+        print()
+        if has_errors:
+            print("ERRORE: metadati non conformi. Correggi prima di pubblicare.", file=sys.stderr)
+            sys.exit(1)
+
     # Raccolta file
     files = _collect_files(root)
     if not files:
@@ -240,6 +366,8 @@ def main() -> None:
         for _, arcname in files:
             print(f"  {arcname}")
         print(f"\nTotale: {len(files)} file")
+        # Verifica presenza icona anche in dry-run
+        _check_icon_in_files(metadata_path, files)
         return
 
     # Nome output
@@ -247,6 +375,9 @@ def main() -> None:
         out_path = Path(args.output)
     else:
         out_path = root / f"{PLUGIN_DIR_NAME}-{version}.zip"
+
+    # Verifica presenza icona nello ZIP
+    _check_icon_in_files(metadata_path, files)
 
     _create_zip(files, out_path)
 
