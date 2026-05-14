@@ -55,6 +55,7 @@ LOG = get_logger("qgis_milsymb.gui.symbol_layer")
 
 _LAYER_PREFIX = "MilSymb - "
 
+# 
 # Default SVG placeholder used as the layer-tree legend icon.
 # We use the plugin's own icon so the layer tree shows a meaningful icon
 # instead of the default QGIS "?" when the layer is empty or the
@@ -367,6 +368,20 @@ class SymbolLayerManager(QObject):
         self._create_vl(sl)
         self.layer_added.emit(sl.id)
         LOG.info("Symbol layer added: %s (%s)", name, sl.id)
+        return sl
+
+    def import_layer(self, sl: SymbolLayer) -> SymbolLayer:
+        """Append an existing *SymbolLayer* (with its symbols) to the project.
+
+        Unlike :meth:`add_layer`, this method accepts a pre-populated
+        ``SymbolLayer`` object coming from a JSON import and registers it
+        with the QGIS map canvas (creating the backing ``QgsVectorLayer``).
+        """
+        self._project.layers.append(sl)
+        self._create_vl(sl)
+        self.layer_added.emit(sl.id)
+        LOG.info("Symbol layer imported: %s (%s) – %d symbols",
+                 sl.name, sl.id, len(sl.symbols))
         return sl
 
     def remove_layer(self, layer_id: str) -> bool:

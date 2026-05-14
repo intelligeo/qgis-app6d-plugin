@@ -34,6 +34,7 @@ from qgis.PyQt.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -429,7 +430,6 @@ class SymbolEditorDockWidget(QDockWidget):
         self._place_btn.setVisible(False)
         self._apply_btn.setVisible(True)
         self._delete_btn.setVisible(True)
-        self.adjustSize()
         LOG.debug("Editing symbol %s (SIDC=%s)", sym.id[:8], sym.sidc)
 
     def load_from_catalog(self, entry: CatalogEntry,
@@ -514,7 +514,6 @@ class SymbolEditorDockWidget(QDockWidget):
         self._delete_btn.setVisible(False)
 
         self._update_preview()
-        self.adjustSize()
         LOG.info("Editor loaded from catalog: %s", entry.name)
 
     def clear_editor(self) -> None:
@@ -545,14 +544,15 @@ class SymbolEditorDockWidget(QDockWidget):
         pass  # Disabilitato: la visibilità è gestita dal collapse interno.
 
     def _toggle_text_modifiers(self, checked: bool) -> None:
-        """Toggle inner widgets of the modifier group to expand/collapse."""
-        layout = self._mod_group.layout()
-        if layout:
-            for i in range(layout.count()):
-                item = layout.itemAt(i)
-                if item.widget():
-                    item.widget().setVisible(checked)
-        self.adjustSize()
+        """Expand or collapse the Text Modifiers section.
+
+        Only the body widget is toggled – no adjustSize() is called so that
+        the dock geometry is never disrupted when anchored to the main window.
+        """
+        self._mod_body.setVisible(checked)
+        self._mod_toggle_btn.setArrowType(
+            Qt.DownArrow if checked else Qt.RightArrow
+        )
 
     # ------------------------------------------------------------------
     # UI construction
@@ -588,12 +588,30 @@ class SymbolEditorDockWidget(QDockWidget):
 
         layout.addWidget(txt_group)
 
-        # ---- Extended Text Modifiers ----
-        self._mod_group = QGroupBox("Text Modifiers")
-        self._mod_group.setCheckable(True)
-        self._mod_group.setChecked(False)
-        self._mod_group.toggled.connect(self._toggle_text_modifiers)
-        mod_layout = QFormLayout(self._mod_group)
+        # ---- Extended Text Modifiers (collapsible, closed by default) ----
+        # Using a QToolButton header + hidden body widget instead of
+        # QGroupBox.setCheckable() to avoid dock geometry disruption.
+        self._mod_group = QGroupBox()
+        self._mod_group.setFlat(True)
+        _mg_layout = QVBoxLayout(self._mod_group)
+        _mg_layout.setContentsMargins(0, 0, 0, 0)
+        _mg_layout.setSpacing(0)
+
+        self._mod_toggle_btn = QToolButton()
+        self._mod_toggle_btn.setCheckable(True)
+        self._mod_toggle_btn.setChecked(False)
+        self._mod_toggle_btn.setArrowType(Qt.RightArrow)
+        self._mod_toggle_btn.setText(" Text Modifiers")
+        self._mod_toggle_btn.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self._mod_toggle_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self._mod_toggle_btn.toggled.connect(self._toggle_text_modifiers)
+        _mg_layout.addWidget(self._mod_toggle_btn)
+
+        self._mod_body = QWidget()
+        mod_layout = QFormLayout(self._mod_body)
+        mod_layout.setContentsMargins(4, 2, 4, 4)
+        self._mod_body.setVisible(False)
+        _mg_layout.addWidget(self._mod_body)
 
         self._quantity_edit = QLineEdit()
         self._quantity_edit.setPlaceholderText("Quantity (C)")

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import html
 import io
+import json
 import os
 import zipfile
 from typing import List, Optional
@@ -33,7 +34,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from . import DARK_THEME_SS
-from ..core.models import MilSymbProject
+from ..core.models import MilSymbProject, SymbolLayer
 from ..core.utils import milsymb_data_dir
 from ..logger import get_logger
 
@@ -121,13 +122,13 @@ class LayerManagerDockWidget(QDockWidget):
         sel_row.addWidget(self._add_btn)
 
         self._rename_btn = QToolButton()
-        self._rename_btn.setText("Γ£Ä")
+        self._rename_btn.setText("Rename")
         self._rename_btn.setToolTip("Rename layer")
         self._rename_btn.clicked.connect(self._on_rename)
         sel_row.addWidget(self._rename_btn)
 
         self._del_btn = QToolButton()
-        self._del_btn.setText("ΓêÆ")
+        self._del_btn.setText("-")
         self._del_btn.setToolTip("Delete layer")
         self._del_btn.clicked.connect(self._on_delete)
         sel_row.addWidget(self._del_btn)
@@ -176,6 +177,32 @@ class LayerManagerDockWidget(QDockWidget):
         exp_layout.addLayout(row5)
 
         root.addWidget(exp_grp)
+
+        # ---- Import group ----
+        imp_grp = QGroupBox("Import")
+        imp_layout = QVBoxLayout(imp_grp)
+
+        imp_row1 = QHBoxLayout()
+        self._import_file_btn = QPushButton("Import layers from JSON file…")
+        self._import_file_btn.setToolTip(
+            "Import symbol layers from a MilSymb JSON file and append them "
+            "to the current project."
+        )
+        self._import_file_btn.clicked.connect(self._on_import_from_file)
+        imp_row1.addWidget(self._import_file_btn)
+        imp_layout.addLayout(imp_row1)
+
+        imp_row2 = QHBoxLayout()
+        self._import_folder_btn = QPushButton("Import from data folder…")
+        self._import_folder_btn.setToolTip(
+            "Browse and pick a JSON file from the MilSymb data folder "
+            "(bundled or previously saved files)."
+        )
+        self._import_folder_btn.clicked.connect(self._on_import_from_data_folder)
+        imp_row2.addWidget(self._import_folder_btn)
+        imp_layout.addLayout(imp_row2)
+
+        root.addWidget(imp_grp)
 
         root.addStretch()
 
@@ -315,6 +342,105 @@ class LayerManagerDockWidget(QDockWidget):
     # Export
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Import
+    # ------------------------------------------------------------------
+
+    def _import_project(self, imported: MilSymbProject) -> int:
+        """Merge *imported* layers into the current project.
+
+        Returns the number of layers actually added.
+        Existing layer names get a numeric suffix to avoid duplicates.
+        """
+        if self._project_data is None:
+            return 0
+
+        existing_names = {sl.name for sl in self._project_data.layers}
+        added = 0
+        first_new_id: str | None = None
+
+        for sl in imported.layers:
+            # Resolve name conflict
+            name = sl.name
+            if name in existing_names:
+                base = name
+                counter = 2
+                while name in existing_names:
+                    name = f"{base} ({counter})"
+                    counter += 1
+                sl.name = name
+            existing_names.add(sl.name)
+
+            if self._layer_manager is not None:
+                self._layer_manager.import_layer(sl)
+            else:
+                self._project_data.layers.append(sl)
+
+            if first_new_id is None:
+                first_new_id = sl.id
+            added += 1
+
+        self._refresh_combo()
+
+        # Switch to the first newly imported layer
+        if first_new_id is not None and self._layer_manager is not None:
+            self._layer_manager.set_active_layer(first_new_id)
+
+        return added
+
+    def _on_import_from_file(self) -> None:
+        """Browse filesystem and import layers from a MilSymb APP-6D JSON file."""
+        default_dir = milsymb_data_dir()
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import layers from APP-6D JSON file",
+            default_dir,
+            "APP-6D JSON (*.app6d.json);;All files (*)",
+        )
+        if not path:
+            return
+        self._import_json_file(path)
+
+    def _on_import_from_data_folder(self) -> None:
+        """Browse the MilSymb data folder for APP-6D JSON files to import."""
+        data_dir = milsymb_data_dir()
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import layers from data folder",
+            data_dir,
+            "APP-6D JSON (*.app6d.json);;All files (*)",
+        )
+        if not path:
+            return
+        self._import_json_file(path)
+
+    def _import_json_file(self, path: str) -> None:
+        """Parse *path* as a MilSymb JSON file and merge its layers."""
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                text = fh.read()
+            imported = MilSymbProject.from_json(text)
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            QMessageBox.critical(self, "Import error",
+                                 f"Could not read {os.path.basename(path)}:\n{exc}")
+            return
+
+        n_layers = len(imported.layers)
+        if n_layers == 0:
+            QMessageBox.information(self, "Import", "No layers found in the file.")
+            return
+
+        added = self._import_project(imported)
+        QMessageBox.information(
+            self, "Import complete",
+            f"Imported {added} layer(s) from\n{path}",
+        )
+        LOG.info("Imported %d layer(s) from %s", added, path)
+
+    # ------------------------------------------------------------------
+    # Export
+    # ------------------------------------------------------------------
+
     def _on_export_all(self) -> None:
         """Export all layers into a single JSON file."""
         if self._project_data is None:
@@ -323,8 +449,8 @@ class LayerManagerDockWidget(QDockWidget):
         path, _ = QFileDialog.getSaveFileName(
             self,
             "Export all layers",
-            os.path.join(default_dir, "milsymb_all_layers.json"),
-            "MilSymb JSON (*.json);;All files (*)",
+            os.path.join(default_dir, "milsymb_all_layers.app6d.json"),
+            "APP-6D JSON (*.app6d.json);;All files (*)",
         )
         if not path:
             return
@@ -355,7 +481,7 @@ class LayerManagerDockWidget(QDockWidget):
             exported = 0
             for sl in self._project_data.layers:
                 safe_name = sl.name.replace(" ", "_").replace("/", "_")
-                fname = f"milsymb_layer_{safe_name}.json"
+                fname = f"milsymb_layer_{safe_name}.app6d.json"
                 path = os.path.join(folder, fname)
                 data = self._project_data.layer_to_json(sl.id)
                 if data is None:
@@ -384,8 +510,8 @@ class LayerManagerDockWidget(QDockWidget):
         path, _ = QFileDialog.getSaveFileName(
             self,
             f"Export layer \"{sl.name}\"",
-            os.path.join(default_dir, f"milsymb_layer_{safe_name}.json"),
-            "MilSymb JSON (*.json);;All files (*)",
+            os.path.join(default_dir, f"milsymb_layer_{safe_name}.app6d.json"),
+            "APP-6D JSON (*.app6d.json);;All files (*)",
         )
         if not path:
             return

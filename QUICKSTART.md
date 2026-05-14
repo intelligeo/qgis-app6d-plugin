@@ -69,9 +69,10 @@ Click **Apply** to update the symbol on the map.
 Click **Layer Manager** in the toolbar to open the layer management dock.
 
 - **Add layer** (`+`) — create a new named symbol layer
-- **Rename** (`✎`) — rename the selected layer
+- **Rename** — rename the selected layer
 - **Delete** (`−`) — remove a layer and all its symbols
-- **Export** — save all layers or the current layer as a `.json` file
+- **Export** — save all layers or the current layer as a `.app6d.json` file, or export as KMZ
+- **Import** — append layers from an existing `.app6d.json` file (browse any path, or open directly from the MilSymb data folder)
 
 ---
 
