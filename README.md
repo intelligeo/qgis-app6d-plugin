@@ -39,7 +39,7 @@ cd qgis-app6d-plugin
 python package_plugin.py
 ```
 
-Then install the generated `qgis_app6d-0.1.0.zip` via the Plugin Manager.
+Then install the generated `qgis_app6d-0.1.5.zip` via the Plugin Manager.
 
 Alternatively, symlink / copy the `qgis_app6d/` folder directly into your QGIS plugin directory:
 
@@ -78,13 +78,6 @@ Set temporal attributes (start/end DTG) in the Symbol Editor, then enable the **
 - Python 3.9+
 - QGIS 3.16+
 - No additional Python packages required at runtime
-
-### Running tests
-
-```bash
-# Unit tests (no QGIS runtime needed for core logic)
-python -m pytest tests/
-```
 
 ### Building the ZIP
 

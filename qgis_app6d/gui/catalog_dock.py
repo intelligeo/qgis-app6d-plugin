@@ -365,7 +365,10 @@ class CatalogDockWidget(QDockWidget):
                     and (event.buttons() & Qt.LeftButton)
                 ):
                     dist = (event.pos() - self._drag_start_pos).manhattanLength()
-                    if dist >= QApplication.startDragDistance():
+                    # Use half the system threshold so drag starts more
+                    # responsively; minimum 4 px to avoid accidental drags.
+                    threshold = max(4, QApplication.startDragDistance() // 2)
+                    if dist >= threshold:
                         item = self._tree.itemAt(self._drag_start_pos)
                         self._drag_start_pos = None
                         if item is not None:
@@ -404,7 +407,7 @@ class CatalogDockWidget(QDockWidget):
             drag.setPixmap(pixmap)
             drag.setHotSpot(pixmap.rect().center())
 
-        drag.exec_(Qt.CopyAction)
+        drag.exec_(Qt.CopyAction | Qt.MoveAction)
         LOG.debug("Drag started for SIDC=%s", sidc[:10])
 
     def _on_tree_context_menu(self, pos) -> None:

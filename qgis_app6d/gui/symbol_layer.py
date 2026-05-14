@@ -54,6 +54,14 @@ from ..logger import get_logger
 LOG = get_logger("qgis_milsymb.gui.symbol_layer")
 
 _LAYER_PREFIX = "MilSymb - "
+
+# Default SVG placeholder used as the layer-tree legend icon.
+# We use the plugin's own icon so the layer tree shows a meaningful icon
+# instead of the default QGIS "?" when the layer is empty or the
+# data-defined path is not yet resolved.
+_PLUGIN_ICON_SVG = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "icons", "milsymb.svg"
+)
 _CRS_WGS84 = "EPSG:4326"
 _SYMBOL_SIZE_MM = 10.0  # rendered size in mm
 _SYMBOL_SIZE_PX = 64  # raster size for SVG cache files
@@ -169,8 +177,11 @@ def _build_renderer(size_mm: float = _SYMBOL_SIZE_MM) -> QgsSingleSymbolRenderer
 
     The ``name`` (SVG path) property is bound to the ``svg_path`` feature
     field so each feature is rendered with its own pre-rendered SVG icon.
+    The placeholder path (used only for the layer-tree legend icon) is set
+    to the plugin icon so QGIS never shows a generic "?" in the panel.
     """
-    svg_sl = QgsSvgMarkerSymbolLayer("")
+    placeholder = _PLUGIN_ICON_SVG if os.path.isfile(_PLUGIN_ICON_SVG) else ""
+    svg_sl = QgsSvgMarkerSymbolLayer(placeholder)
     svg_sl.setSize(size_mm)
     svg_sl.setDataDefinedProperty(
         QgsSvgMarkerSymbolLayer.PropertyName,
@@ -334,7 +345,13 @@ class SymbolLayerManager(QObject):
         vl = _make_vl(name)
         if not vl.isValid():
             return None
-        QgsProject.instance().addMapLayer(vl)
+        # Add to the project registry WITHOUT adding to the legend tree
+        # automatically – we then insert it explicitly at position 0 of
+        # the root so it always appears at the top and never ends up
+        # inside a layer group that the user may have created.
+        QgsProject.instance().addMapLayer(vl, False)
+        root = QgsProject.instance().layerTreeRoot()
+        root.insertLayer(0, vl)
         self._vl_map[sym_layer.id] = vl
         for sym in sym_layer.symbols:
             self._add_feature(vl, sym)

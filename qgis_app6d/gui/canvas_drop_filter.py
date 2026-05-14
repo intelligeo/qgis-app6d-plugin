@@ -79,13 +79,16 @@ class CanvasInteractionFilter(QObject):
         # ---- Drag enter --------------------------------------------------
         if evt_type == QEvent.DragEnter:
             if ev.mimeData().hasFormat(MILSYMB_MIME_TYPE):
-                ev.acceptProposedAction()
+                ev.setDropAction(Qt.CopyAction)
+                ev.accept()
                 return True
 
-        # ---- Drag move – must accept to keep the drop cursor active ------
+        # ---- Drag move – must accept on every move event to keep the
+        #      drop cursor active and avoid the "forbidden" cursor --------
         elif evt_type == QEvent.DragMove:
             if ev.mimeData().hasFormat(MILSYMB_MIME_TYPE):
-                ev.acceptProposedAction()
+                ev.setDropAction(Qt.CopyAction)
+                ev.accept()
                 return True
 
         # ---- Drop --------------------------------------------------------
@@ -121,7 +124,11 @@ class CanvasInteractionFilter(QObject):
                     float(map_pt.x()),
                     float(map_pt.y()),
                 )
-                ev.acceptProposedAction()
+                ev.setDropAction(Qt.CopyAction)
+                ev.accept()
+                # Force immediate canvas repaint so the new symbol
+                # appears without requiring a mouse move.
+                self._canvas.refresh()
                 LOG.info(
                     "Symbol dropped at (%.6f, %.6f) SIDC=%s",
                     map_pt.x(), map_pt.y(),
