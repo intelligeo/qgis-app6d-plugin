@@ -113,7 +113,7 @@ If you find this plugin useful, consider buying me a coffee ☕
 
 [GNU General Public License v2.0](LICENSE)
 
-© 2026 [INTELLIGEO.ch](https://intelligeo.ch)
+© 2026 [INTELLIGEO.ch](https://intelligeo.ch/)
 
 ---
 
