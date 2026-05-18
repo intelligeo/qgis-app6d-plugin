@@ -4,7 +4,7 @@ qgisMinimumVersion=3.16
 qgisMaximumVersion=3.99
 description=APP-6(D) Military Symbols is a QGIS plugin providing a full military symbol library following the NATO APP-6(D) standard, an ORBAT manager & temporal management for QGIS.
 about=Providing a full military symbol library for QGIS following the NATO APP-6(D) standard with 20-character SIDC, a built-in SVG/PNG rendering server, hierarchical ORBAT (Order of Battle) management, and temporal layer filtering via the QGIS Temporal Controller. Backward compatible with QGIS 3.16+. No external Python dependencies required. The milsymbol.js rendering library is bundled inside the plugin package.
-version=0.1.6
+version=0.1.7
 author=INTELLIGEO.ch
 email=ask@intelligeo.ch
 license=GPL-2
@@ -16,7 +16,7 @@ tracker=https://github.com/intelligeo/qgis-app6d-plugin/issues
 repository=https://github.com/intelligeo/qgis-app6d-plugin
 buymeacoffee=https://www.buymeacoffee.com/intelligeo
 
-changelog=0.1.6 - Import layers from .app6d.json files; stable collapsible Text Modifiers panel in Symbol Editor; .app6d.json extension for all export/import dialogs
+changelog=0.1.7 - Remove multilingual name fields from CatalogEntry (keep English only); add UAV/UAS entries to Land Unit symbol set
     0.1.5 - Fix milsymbol JS SyntaxError (f-string bug); re-implement KMZ export with embedded PNG icons
     0.1.4 - Code style cleanup: binary operator placement (W503/W504), remove unnecessary f-string prefixes, add ruff.toml and setup.cfg for linting; lint workflow restricted to manual trigger only
     0.1.3 - Full PEP 8 / Flake8 style cleanup; plugin constants read from metadata.txt; resources/ excluded from ZIP

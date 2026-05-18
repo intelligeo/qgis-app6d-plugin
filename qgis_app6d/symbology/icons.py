@@ -741,6 +741,7 @@ _ICON_REGISTRY: dict[tuple[str, str], callable] = {
     ("10", "140200"): icon_rocket_artillery,
     ("10", "150000"): icon_air_defense,
     ("10", "160000"): icon_aviation,
+    ("10", "121900"): icon_uav,   # Unmanned Systems (APP-6D entity)
     ("10", "170000"): icon_engineer,
     ("10", "180000"): icon_signal,
     ("10", "190000"): icon_military_intelligence,
@@ -774,10 +775,18 @@ _ICON_REGISTRY: dict[tuple[str, str], callable] = {
     ("01", "120000"): icon_bomber,
     ("01", "130000"): icon_transport_aircraft,
     ("01", "130100"): icon_tanker_aircraft,
-    ("01", "140000"): icon_uav,
-    ("01", "140100"): icon_uav,  # Recon UAV
+    ("01", "110300"): icon_uav,           # Unmanned Aerial Vehicle
+    ("01", "110301"): icon_uav,           # UAV – Fixed Wing
+    ("01", "110302"): icon_uav,           # UAV – Rotary Wing
+    ("01", "110303"): icon_uav,           # UAV – Attack
+    ("01", "110304"): icon_uav,           # UAV – Cargo
+    ("01", "110305"): icon_uav,           # UAV – Reconnaissance
+    ("01", "110400"): icon_uav,           # Vertical-Takeoff UAV (VT-UAV)
+    ("01", "120300"): icon_uav,           # Civilian UAV
+    ("01", "140000"): icon_uav,           # legacy mapping
+    ("01", "140100"): icon_uav,           # legacy Recon UAV
     ("01", "150000"): icon_attack_helicopter,
-    ("01", "160000"): icon_helicopter,  # Utility helicopter
+    ("01", "160000"): icon_helicopter,    # Utility helicopter
     # Air Missile (02) -------------------------------------------------
     ("02", "000000"): icon_air_track,
     # Space (05) -------------------------------------------------------

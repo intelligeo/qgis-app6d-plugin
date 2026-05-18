@@ -2,7 +2,7 @@
 
 [![QGIS](https://img.shields.io/badge/QGIS-3.16%2B-green.svg)](https://qgis.org)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](qgis_app6d/metadata.txt)
+[![Version](https://img.shields.io/badge/version-0.1.7-orange.svg)](qgis_app6d/metadata.txt)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-yellow.svg?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/intelligeo)
 
 A QGIS 3 plugin providing a full military symbol library following the **NATO APP-6(D)** standard, an ORBAT manager, and temporal layer filtering via the QGIS Temporal Controller.
@@ -40,7 +40,7 @@ cd qgis-app6d-plugin
 python package_plugin.py
 ```
 
-Then install the generated `qgis_app6d-0.1.5.zip` via the Plugin Manager.
+Then install the generated `qgis_app6d-0.1.7.zip` via the Plugin Manager.
 
 Alternatively, symlink / copy the `qgis_app6d/` folder directly into your QGIS plugin directory:
 

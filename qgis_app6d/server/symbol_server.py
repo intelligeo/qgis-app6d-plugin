@@ -394,7 +394,6 @@ class _SymbolHandler(BaseHTTPRequestHandler):
                     "symbol_set": e.symbol_set,
                     "entity_code": e.entity_code,
                     "name": e.name,
-                    "name_de": e.name_de,
                     "category": e.category,
                     "sidc": e.sidc_template(),
                 }

@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] – 2026-05-18
+
+### Changed
+- `CatalogEntry` dataclass: removed `name_de`, `name_fr`, `name_it` fields; only the English `name` is retained.
+- All catalog entry instantiations updated accordingly (no positional language arguments).
+
+### Added
+- **Land Unit** symbol set: new **UAS / Drone** category with four entries:
+  - `Unmanned Aerial Vehicle (UAS)` – generic
+  - `UAS – Attack` (M1=03)
+  - `UAS – Reconnaissance` (M1=18)
+  - `UAS – Logistics / Cargo` (M1=69)
+
+---
+
 ## [0.1.6] – 2026-05-14
 
 ### Added
@@ -93,7 +108,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layer Manager dock: named symbol layers, per-layer JSON export
 - Temporal filtering integrated with the QGIS Temporal Controller
 
-[Unreleased]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/intelligeo/qgis-app6d-plugin/compare/v0.1.3...v0.1.4

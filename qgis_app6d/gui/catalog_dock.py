@@ -293,7 +293,7 @@ class CatalogDockWidget(QDockWidget):
                     entry_item.setData(0, Qt.UserRole, entry)
                     entry_item.setToolTip(
                         0,
-                        f"{entry.name_de or entry.name}\n"
+                        f"{entry.name}\n"
                         f"SIDC template: {entry.sidc_template()}",
                     )
 
