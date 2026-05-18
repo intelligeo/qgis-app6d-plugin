@@ -154,11 +154,11 @@ class _ASTChecker(ast.NodeVisitor):
                 elif comparator.value is True:
                     sym = "==" if isinstance(op, ast.Eq) else "!="
                     self._add(node, "E712",
-                               f"comparison to True should be 'if cond:' or 'if not cond:'")
+                               "comparison to True should be 'if cond:' or 'if not cond:'")
                 elif comparator.value is False:
                     sym = "==" if isinstance(op, ast.Eq) else "!="
                     self._add(node, "E712",
-                               f"comparison to False should be 'if not cond:' or 'if cond:'")
+                               "comparison to False should be 'if not cond:' or 'if cond:'")
         self.generic_visit(node)
 
     # -- E721 type() comparison --

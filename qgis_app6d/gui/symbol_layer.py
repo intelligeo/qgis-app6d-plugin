@@ -55,7 +55,7 @@ LOG = get_logger("qgis_milsymb.gui.symbol_layer")
 
 _LAYER_PREFIX = "MilSymb - "
 
-# 
+#
 # Default SVG placeholder used as the layer-tree legend icon.
 # We use the plugin's own icon so the layer tree shows a meaningful icon
 # instead of the default QGIS "?" when the layer is empty or the
